@@ -1,4 +1,4 @@
-defmodule DefreTest do
+defmodule DefrTest do
   use ExUnit.Case, async: true
   use Defr
 
