@@ -32,5 +32,8 @@ defmodule Defre.NestedCallTest do
 
   test "profile_re" do
     assert %Right{right: "id: 1, src: db"} == UserController.profile_re(1) |> Reader.run(%{})
+
+    assert %Right{right: "id: 1, src: db"} ==
+             UserController.profile_re(1) |> Reader.run(mock(%{&User.get_src/0 => :mocked}))
   end
 end

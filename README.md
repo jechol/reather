@@ -4,7 +4,7 @@
 [![Hex version badge](https://img.shields.io/hexpm/v/defre.svg)](https://hex.pm/packages/defre)
 [![License badge](https://img.shields.io/hexpm/l/defre.svg)](https://github.com/trevorite/defre/blob/master/LICENSE.md)
 
-Unobtrusive Dependency Injector for Elixir
+`defre` is `def` for Witchcraft's Reader, Either monads.
 
 ## Why?
 
@@ -41,20 +41,14 @@ in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:defre, "~> 1.2"}]
+  [{:defre, "~> 0.1"}]
 end
-```
-
-By default, `defre` is replaced with `def` in all but the test environment. Add the below configuration to enable in other environments.
-
-```elixir
-config :defre, :enable, true
 ```
 
 To format `defre` like `def`, add following to your `.formatter.exs`
 
 ```elixir
-locals_without_parens: [defre: 1, defre: 2]
+locals_without_parens: [defre: 2]
 ```
 
 ## Documentation
