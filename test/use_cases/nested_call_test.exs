@@ -8,7 +8,7 @@ defmodule Defre.NestedCallTest do
     defstruct [:id, :src]
 
     def get_by_id(user_id) do
-      %__MODULE__{id: user_id, src: :db}
+      %__MODULE__{id: user_id, src: :db} |> Right.new()
     end
   end
 
@@ -20,12 +20,14 @@ defmodule Defre.NestedCallTest do
 
   defmodule UserController do
     def profile(user_id) do
-      %User{id: id, src: src} = Accounts.get_user_by_id(user_id)
-      "id: #{id}, src: #{src}"
+      monad %Right{} do
+        %User{id: id, src: src} <- Accounts.get_user_by_id(user_id)
+        "id: #{id}, src: #{src}" |> Right.new()
+      end
     end
   end
 
   test "reader is available in nested call" do
-    assert "id: 1, src: db" == UserController.profile(1)
+    assert %Right{right: "id: 1, src: db"} == UserController.profile(1)
   end
 end
