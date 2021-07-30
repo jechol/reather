@@ -197,20 +197,22 @@ defmodule Defre.InjectTest do
             Witchcraft.Monad.monad %Reader{} do
               deps <- Algae.Reader.ask()
 
-              Witchcraft.Monad.monad %Right{} do
-                case a do
-                  false ->
-                    Map.get(
-                      deps,
-                      &Calc.sum/2,
-                      :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
-                    ).(a, b)
+              return(
+                Witchcraft.Monad.monad %Right{} do
+                  case a do
+                    false ->
+                      Map.get(
+                        deps,
+                        &Calc.sum/2,
+                        :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
+                      ).(a, b)
 
-                  true ->
-                    import Calc
-                    sum(a, b)
+                    true ->
+                      import Calc
+                      sum(a, b)
+                  end
                 end
-              end
+              )
             end
           end
         end
@@ -238,21 +240,23 @@ defmodule Defre.InjectTest do
             Witchcraft.Monad.monad %Reader{} do
               deps <- Algae.Reader.ask()
 
-              Witchcraft.Monad.monad %Right{} do
-                case a do
-                  false ->
-                    Map.get(
-                      deps,
-                      &Calc.sum/2,
-                      :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
-                    ).(a, b)
-                    |> Algae.Reader.run(deps)
+              return(
+                Witchcraft.Monad.monad %Right{} do
+                  case a do
+                    false ->
+                      Map.get(
+                        deps,
+                        &Calc.sum/2,
+                        :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
+                      ).(a, b)
+                      |> Algae.Reader.run(deps)
 
-                  true ->
-                    import Calc
-                    sum(a, b)
+                    true ->
+                      import Calc
+                      sum(a, b)
+                  end
                 end
-              end
+              )
             end
           end
         end

@@ -46,9 +46,11 @@ defmodule Defre.Inject do
                  #    unquote(Macro.escape({mod, name, arity}))
                  #  )
 
-                 Witchcraft.Monad.monad %Right{} do
-                   unquote(injected_blk)
-                 end
+                 return(
+                   Witchcraft.Monad.monad %Right{} do
+                     unquote(injected_blk)
+                   end
+                 )
                end
              end}
 
