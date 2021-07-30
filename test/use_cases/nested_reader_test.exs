@@ -35,11 +35,23 @@ defmodule Defr.NestedCallTest do
     end
   end
 
-  test "UserController" do
+  test "inject 3rd layer" do
     assert [{:profile, 1}] == UserController.__reader_funs__()
 
     assert %Right{right: %User{id: 1, name: "josevalim"}} ==
              UserController.profile("1")
              |> Reader.run(%{&Repo.get/2 => fn _, _ -> %User{id: 1, name: "josevalim"} end})
+  end
+
+  test "inject 2nd layer" do
+    assert [{:get_user_by_id, 1}] == Accounts.__reader_funs__()
+
+    assert %Right{right: %User{id: 2, name: "chrismccord"}} ==
+             UserController.profile("2")
+             |> Reader.run(%{
+               &User.get_by_id/1 => fn _ ->
+                 Reader.new(fn _ -> Right.new(%User{id: 2, name: "chrismccord"}) end)
+               end
+             })
   end
 end

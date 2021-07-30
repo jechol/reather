@@ -4,7 +4,7 @@
 [![Hex version badge](https://img.shields.io/hexpm/v/defr.svg)](https://hex.pm/packages/defr)
 [![License badge](https://img.shields.io/hexpm/l/defr.svg)](https://github.com/trevorite/defr/blob/master/LICENSE.md)
 
-`defr` is `def` for Witchcraft's Reader, Either monads.
+`defr` is `def` for Witchcraft's Reader monads.
 
 ## Why?
 
@@ -50,10 +50,6 @@ To format `defr` like `def`, add following to your `.formatter.exs`
 ```elixir
 locals_without_parens: [defr: 2]
 ```
-
-## Documentation
-
-API documentation is available at [https://hexdocs.pm/defr](https://hexdocs.pm/defr)
 
 ## Usage
 
