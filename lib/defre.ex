@@ -3,7 +3,6 @@ defmodule Defre do
     quote do
       import Defre, only: :macros
       alias Algae.Reader
-      alias Algae.Either.{Left, Right}
     end
   end
 
@@ -60,8 +59,6 @@ defmodule Defre do
       end
   """
 
-  @reader_modules Application.compile_env(:defre, :reader_modules, [])
-
   defmacro defre(head, body) do
     alias Defre.Inject
 
@@ -70,10 +67,7 @@ defmodule Defre do
         def unquote(head), unquote(body)
       end
 
-    Inject.inject_function(head, body, __CALLER__, %{
-      mode: {:reader, :either},
-      reader_modules: @reader_modules
-    })
+    Inject.inject_function(head, body, __CALLER__)
     |> trace(original, __CALLER__)
   end
 

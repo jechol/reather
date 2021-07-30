@@ -6,18 +6,13 @@ defmodule Defre.Inject do
   @uninjectable [:erlang, Kernel, Kernel.Utils]
   @modifiers [:import, :require, :use]
 
-  def inject_function(
-        head,
-        body,
-        %Macro.Env{module: _mod, file: file, line: line} = env,
-        %{mode: {:reader, :either}, reader_modules: _reader_modules} = config
-      )
+  def inject_function(head, body, %Macro.Env{module: _mod, file: file, line: line} = env)
       when is_list(body) do
     inject_results =
       body
       |> Enum.map(fn
         {key = :do, blk} ->
-          case blk |> inject_ast_recursively(env, config) do
+          case blk |> inject_ast_recursively(env) do
             {:ok, {_, _, _} = value} ->
               {key, value}
 
@@ -44,11 +39,7 @@ defmodule Defre.Inject do
                Witchcraft.Monad.monad %Algae.Reader{} do
                  deps <- Algae.Reader.ask()
 
-                 return(
-                   Witchcraft.Monad.monad %Algae.Either.Right{} do
-                     unquote(injected_blk)
-                   end
-                 )
+                 return(unquote(injected_blk))
                end
              end}
 
@@ -59,19 +50,42 @@ defmodule Defre.Inject do
       end)
 
     quote do
-      # unquote(injected_head)
-
+      unquote(accumulate_defr(head))
       def unquote(head), unquote(injected_body)
     end
   end
 
-  def inject_ast_recursively(blk, env, config) do
+  defp accumulate_defr(head) do
+    fa = get_fa(head)
+
+    quote do
+      Module.register_attribute(__MODULE__, :defr, accumulate: true)
+
+      unless unquote(fa) in Module.get_attribute(__MODULE__, :defr) do
+        @defr unquote(fa)
+      end
+    end
+  end
+
+  defp get_fa({:when, _, [name_args, _when_cond]}) do
+    get_fa(name_args)
+  end
+
+  defp get_fa({name, _, args}) when is_list(args) do
+    {name, args |> Enum.count()}
+  end
+
+  defp get_fa({name, _, _}) do
+    {name, 0}
+  end
+
+  def inject_ast_recursively(blk, env) do
     with {:ok, ^blk} <- blk |> check_no_modifier_recursively() do
       {injected_blk, {captures, mods}} =
         blk
         |> expand_recursively!(env)
         |> mark_remote_call_recursively!()
-        |> inject_recursively!(config)
+        |> inject_recursively!()
 
       {:ok, {injected_blk, captures, mods}}
     end
@@ -136,10 +150,10 @@ defmodule Defre.Inject do
     ast
   end
 
-  defp inject_recursively!(ast, config) do
+  defp inject_recursively!(ast) do
     ast
     |> Macro.postwalk({[], []}, fn ast, {captures, mods} ->
-      {injected_ast, new_caputres, new_mods} = inject(ast, config)
+      {injected_ast, new_caputres, new_mods} = inject(ast)
       {injected_ast, {new_caputres ++ captures, new_mods ++ mods}}
     end)
   end
@@ -148,10 +162,7 @@ defmodule Defre.Inject do
     {ast, [], []}
   end
 
-  defp inject({{:., _dot_ctx, [mod, name]}, _call_ctx, args} = ast, %{
-         mode: {:reader, :either},
-         reader_modules: reader_modules
-       })
+  defp inject({{:., _dot_ctx, [mod, name]}, _call_ctx, args} = ast)
        when is_atom(name) and is_list(args) do
     if AST.is_module_ast(mod) and AST.unquote_module_ast(mod) not in @uninjectable do
       arity = Enum.count(args)
@@ -159,28 +170,35 @@ defmodule Defre.Inject do
 
       injected_call =
         quote do
-          Map.get(
-            deps,
-            unquote(capture),
-            unquote(capture)
-            # :erlang.make_fun(
-            #   Map.get(deps, unquote(mod), unquote(mod)),
-            #   unquote(name),
-            #   unquote(arity)
-            # )
-          ).(unquote_splicing(args))
-        end
+          ret =
+            Map.get(
+              deps,
+              unquote(capture),
+              unquote(capture)
+              # :erlang.make_fun(
+              #   Map.get(deps, unquote(mod), unquote(mod)),
+              #   unquote(name),
+              #   unquote(arity)
+              # )
+            ).(unquote_splicing(args))
 
-      reader_call =
-        if AST.unquote_module_ast(mod) in reader_modules do
-          quote do
-            unquote(injected_call) |> Algae.Reader.run(deps)
+          if {unquote(name), unquote(arity)} in unquote(mod).__defr__() do
+            ret |> Algae.Reader.run(deps)
+          else
+            ret
           end
-        else
-          injected_call
         end
 
-      {reader_call, [capture], [mod]}
+      # reader_call =
+      #   if AST.unquote_module_ast(mod) in reader_modules do
+      #     quote do
+      #       unquote(injected_call) |> Algae.Reader.run(deps)
+      #     end
+      #   else
+      #     injected_call
+      #   end
+
+      {injected_call, [capture], [mod]}
     else
       {ast, [], []}
     end
