@@ -36,10 +36,7 @@ defmodule Defr.MixProject do
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
 
-      {:quark, git: "https://github.com/witchcrafters/quark.git", override: true},
-      {:type_class, git: "https://github.com/witchcrafters/type_class.git", override: true},
-      {:witchcraft, git: "https://github.com/trevorite/witchcraft.git", override: true},
-      {:algae, git: "https://github.com/witchcrafters/algae.git"}
+      {:algae, "~> 1.3"}
     ]
   end
 
