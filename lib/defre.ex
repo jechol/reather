@@ -98,10 +98,8 @@ defmodule Defre do
       use Defre
 
       test "send_welcome_email with mock/1" do
-        Accounts.send_welcome_email(
-          100,
+        Accounts.send_welcome_email(100) |> Reader.run(
           mock(%{
-            Repo => MockRepo,
             &Mailer.send/1 => Process.send(self(), :email_sent)
           })
         )
