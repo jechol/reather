@@ -1,38 +1,8 @@
-![](https://github.com/trevorite/defr/blob/master/brand/logo.png?raw=true)
-
 [![mix test](https://github.com/trevorite/defr/workflows/mix%20test/badge.svg)](https://github.com/trevorite/defr/actions)
 [![Hex version badge](https://img.shields.io/hexpm/v/defr.svg)](https://hex.pm/packages/defr)
 [![License badge](https://img.shields.io/hexpm/l/defr.svg)](https://github.com/trevorite/defr/blob/master/LICENSE.md)
 
 `defr` is `def` for Witchcraft's Reader monads.
-
-## Why?
-
-Let's say we want to test following function.
-
-```elixir
-def send_welcome_email(user_id) do
-  %{email: email} = Repo.get(User, user_id)
-
-  welcome_email(to: email)
-  |> Mailer.send()
-end
-```
-
-Here's one possible solution to replace `Repo.get/2` and `Mailer.send/1` with mocks:
-
-```elixir
-def send_welcome_email(user_id, repo \\ Repo, mailer \\ Mailer) do
-  %{email: email} = repo.get(User, user_id)
-
-  welcome_email(to: email)
-  |> mailer.send()
-end
-```
-
-First, I believe that this approach is too obtrusive as it requires modifying the function body to make it testable. Second, with `Mailer` replaced with `mailer`, the compiler no longer check the existence of `Mailer.send/1`.
-
-`defr` does not require you to modify function arguments or body. It allows injecting different mocks to each function. It also does not limit using `:async` option as mocks are contained in each test function.
 
 ## Installation
 
@@ -53,64 +23,62 @@ locals_without_parens: [defr: 2]
 
 ## Usage
 
-### use Defr
-
-`defr` transforms body to be injectable with Witchcraft's Algae.Reader monad.
-
 ```elixir
-use Defr
+defmodule Defr.NestedCallTest do
+  use ExUnit.Case, async: true
+  use Defr
+  alias Algae.Reader
+  alias Algae.Either.Right
 
-def send_welcome_email(user_id) do
-  %{email: email} = Repo.get(User, user_id)
+  defmodule User do
+    use Defr
 
-  welcome_email(to: email)
-  |> Mailer.send()
-end
-```
+    defstruct [:id, :name]
 
-is expanded into
-
-```elixir
-def send_welcome_email(user_id, deps \\ %{}) do
-  %{email: email} =
-    Map.get(deps, &Repo.get/2,
-      :erlang.make_fun(Map.get(deps, Repo, Repo), :get, 2)
-    ).(User, user_id)
-
-  welcome_email(to: email)
-  |> Map.get(deps, &Mailer.send/1,
-       :erlang.make_fun(Map.get(deps, Mailer, Mailer), :send, 1)
-     ).()
-end
-```
-
-Note that local function calls like `welcome_email(to: email)` are not expanded unless it is prepended with `__MODULE__`.
-
-Now, you can inject mock functions and modules in tests.
-
-```elixir
-test "send_welcome_email" do
-  Accounts.send_welcome_email(100, %{
-    Repo => MockRepo,
-    &Mailer.send/1 => fn %Email{to: "user100@gmail.com", subject: "Welcome"} ->
-      Process.send(self(), :email_sent)
+    defr get_by_id(user_id) do
+      Repo.get(__MODULE__, user_id) |> Right.new()
     end
-  })
+  end
 
-  assert_receive :email_sent
-end
-```
+  defmodule Accounts do
+    use Defr
 
-Function calls raise if the `deps` includes redundant functions or modules.
-You can disable this by adding `strict: false` option.
+    defr get_user_by_id(user_id) do
+      monad %Right{} do
+        user <- User.get_by_id(user_id)
+        user |> Right.new()
+      end
+    end
+  end
 
-```elixir
-test "send_welcome_email with strict: false" do
-  Accounts.send_welcome_email(100, %{
-    &Repo.get/2 => fn User, 100 -> %User{email: "user100@gmail.com"} end,
-    &Repo.all/1 => fn _ -> [%User{email: "user100@gmail.com"}] end, # Unused
-    strict: false
-  })
+  defmodule UserController do
+    use Defr
+
+    defr profile(user_id_str) do
+      user_id = String.to_integer(user_id_str)
+      Accounts.get_user_by_id(user_id)
+    end
+  end
+
+  test "inject 3rd layer" do
+    assert [{:profile, 1}] == UserController.__reader_funs__()
+
+    assert %Right{right: %User{id: 1, name: "josevalim"}} ==
+             UserController.profile("1")
+             |> Reader.run(%{&Repo.get/2 => fn _, _ -> %User{id: 1, name: "josevalim"} end})
+  end
+
+  test "inject 2nd layer" do
+    assert [{:get_user_by_id, 1}] == Accounts.__reader_funs__()
+
+    assert %Right{right: %User{id: 2, name: "chrismccord"}} ==
+             UserController.profile("2")
+             |> Reader.run(%{
+               &User.get_by_id/1 => fn _ ->
+                 Reader.new(fn _ -> Right.new(%User{id: 2, name: "chrismccord"}) end)
+               end
+             })
+  end
 end
 ```
 
@@ -119,36 +87,13 @@ end
 If you don't need pattern matching in mock function, `mock/1` can be used to reduce boilerplates.
 
 ```elixir
-import Defr
-
-test "send_welcome_email with mock/1" do
-  Accounts.send_welcome_email(
-    100,
-    mock(%{
-      Repo => MockRepo,
-      &Mailer.send/1 => Process.send(self(), :email_sent)
-    })
-  )
-
-  assert_receive :email_sent
-end
+UserController.profile("1") |> Reader.run(%{&Repo.get/2 => fn _, _ -> %User{} end})
 ```
 
-Note that `Process.send(self(), :email_sent)` is surrounded by `fn _ -> end` when expanded.
-
-### import Defr
-
-`import Defr` instead of `use Defr` if you want to manually select functions to inject.
+can be changed to
 
 ```elixir
-import Defr
-
-defr send_welcome_email(user_id) do
-  %{email: email} = Repo.get(User, user_id)
-
-  welcome_email(to: email)
-  |> Mailer.send()
-end
+UserController.profile("1") |> Reader.run(%{&Repo.get/2 => mock(%User{})})
 ```
 
 ## License

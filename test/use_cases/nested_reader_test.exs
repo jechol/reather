@@ -1,6 +1,5 @@
 defmodule Defr.NestedCallTest do
   use ExUnit.Case, async: true
-  use Witchcraft, override_kernel: false
   use Defr
   alias Algae.Reader
   alias Algae.Either.Right
