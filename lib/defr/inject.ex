@@ -1,10 +1,18 @@
-defmodule Defre.Inject do
+defmodule Defr.Inject do
   @moduledoc false
 
-  alias Defre.AST
+  alias Defr.AST
 
   @uninjectable [:erlang, Kernel, Kernel.Utils]
   @modifiers [:import, :require, :use]
+
+  defmacro __before_compile__(_env) do
+    quote do
+      def __defr__ do
+        @defr
+      end
+    end
+  end
 
   def inject_function(head, body, %Macro.Env{module: _mod, file: file, line: line} = env)
       when is_list(body) do
@@ -158,7 +166,7 @@ defmodule Defre.Inject do
     end)
   end
 
-  defp inject({_func, [{:skip_inject, true} | _], _args} = ast, _config) do
+  defp inject({_func, [{:skip_inject, true} | _], _args} = ast) do
     {ast, [], []}
   end
 
@@ -204,7 +212,7 @@ defmodule Defre.Inject do
     end
   end
 
-  defp inject(ast, _config) do
+  defp inject(ast) do
     {ast, [], []}
   end
 end

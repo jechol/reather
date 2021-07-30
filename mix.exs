@@ -1,4 +1,4 @@
-defmodule Defre.MixProject do
+defmodule Defr.MixProject do
   use Mix.Project
 
   @version "0.1.0"

@@ -1,7 +1,7 @@
-defmodule Defre.MulticlauseTest do
+defmodule Defr.MulticlauseTest do
   use ExUnit.Case, async: true
   alias Algae.Reader
-  use Defre
+  use Defr
 
   defmodule Multi do
     defre add(a, 0), do: Calc.id(a)

@@ -57,12 +57,12 @@ API documentation is available at [https://hexdocs.pm/defre](https://hexdocs.pm/
 
 ## Usage
 
-### use Defre
+### use Defr
 
-`use Defre` transforms `def` to accept a extra argument `deps` where dependent functions and modules can be injected.
+`use Defr` transforms `def` to accept a extra argument `deps` where dependent functions and modules can be injected.
 
 ```elixir
-use Defre
+use Defr
 
 def send_welcome_email(user_id) do
   %{email: email} = Repo.get(User, user_id)
@@ -123,7 +123,7 @@ end
 If you don't need pattern matching in mock function, `mock/1` can be used to reduce boilerplates.
 
 ```elixir
-import Defre
+import Defr
 
 test "send_welcome_email with mock/1" do
   Accounts.send_welcome_email(
@@ -140,12 +140,12 @@ end
 
 Note that `Process.send(self(), :email_sent)` is surrounded by `fn _ -> end` when expanded.
 
-### import Defre
+### import Defr
 
-`import Defre` instead of `use Defre` if you want to manually select functions to inject.
+`import Defr` instead of `use Defr` if you want to manually select functions to inject.
 
 ```elixir
-import Defre
+import Defr
 
 defre send_welcome_email(user_id) do
   %{email: email} = Repo.get(User, user_id)

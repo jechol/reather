@@ -1,15 +1,17 @@
-defmodule Defre do
+defmodule Defr do
   defmacro __using__(_) do
     quote do
-      import Defre, only: :macros
+      import Defr, only: :macros
       alias Algae.Reader
+
+      @before_compile unquote(Defr.Inject)
     end
   end
 
   @doc """
   `defre` transforms a function to accept a map where dependent functions and modules can be injected.
 
-      use Defre
+      use Defr
 
       defre send_welcome_email(user_id) do
         %{email: email} = Repo.get(User, user_id)
@@ -60,7 +62,7 @@ defmodule Defre do
   """
 
   defmacro defre(head, body) do
-    alias Defre.Inject
+    alias Defr.Inject
 
     original =
       quote do
@@ -89,7 +91,7 @@ defmodule Defre do
   @doc """
   If you don't need pattern matching in mock function, `mock/1` can be used to reduce boilerplates.
 
-      use Defre
+      use Defr
 
       test "send_welcome_email with mock/1" do
         Accounts.send_welcome_email(100) |> Reader.run(
@@ -104,7 +106,7 @@ defmodule Defre do
   Note that `Process.send(self(), :email_sent)` is surrounded by `fn _ -> end` when expanded.
   """
   defmacro mock({:%{}, context, mocks}) do
-    alias Defre.Mock
+    alias Defr.Mock
 
     {:%{}, context, mocks |> Enum.map(&Mock.decorate_with_fn/1)}
   end

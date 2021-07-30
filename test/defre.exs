@@ -1,6 +1,6 @@
 defmodule DefreTest do
   use ExUnit.Case, async: true
-  use Defre
+  use Defr
 
   defmodule Nested do
     defmodule DoubleNested do
