@@ -83,7 +83,7 @@ defmodule Defre do
     alias Defre.Inject
 
     if Application.get_env(:defre, :enable, Mix.env() == :test) do
-      Inject.inject_function(head, body, env)
+      Inject.inject_function(head, body, env, %{mode: {:reader, :either}, reader_modules: []})
       |> trace(original, env)
     else
       original

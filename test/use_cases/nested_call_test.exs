@@ -42,7 +42,11 @@ defmodule Defre.NestedCallTest do
     end
   end
 
-  test "reader is available in nested call" do
+  test "profile" do
     assert %Right{right: "id: 1, src: db"} == UserController.profile(1) |> Reader.run(%{})
+  end
+
+  test "profile_re" do
+    assert %Right{right: "id: 1, src: db"} == UserController.profile_re(1) |> Reader.run(%{})
   end
 end

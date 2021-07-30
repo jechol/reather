@@ -20,14 +20,15 @@ defmodule Defre.Inject do
     end
   end
 
-  def inject_function(head, [], _env) do
+  def inject_function(head, [], _env, _config) do
     inject_head(head)
   end
 
   def inject_function(
         head,
         body,
-        %Macro.Env{module: mod, file: file, line: line} = env
+        %Macro.Env{module: mod, file: file, line: line} = env,
+        %{mode: {:reader, :either}, reader_modules: _reader_modules} = config
       )
       when is_list(body) do
     call_for_clause = call_for_clause(head)
@@ -37,7 +38,7 @@ defmodule Defre.Inject do
     inject_results =
       body
       |> Enum.map(fn {key, blk} ->
-        case blk |> inject_ast_recursively(env) do
+        case blk |> inject_ast_recursively(env, config) do
           {:ok, {_, _, _} = value} ->
             {key, value}
 
@@ -62,13 +63,19 @@ defmodule Defre.Inject do
           do_blk =
             {:do,
              quote do
-               Defre.Check.validate_deps(
-                 deps,
-                 {unquote(captures), unquote(mods)},
-                 unquote(Macro.escape({mod, name, arity}))
-               )
+               Witchcraft.Monad.monad %Reader{} do
+                 deps <- Algae.Reader.ask()
 
-               unquote(injected_blk)
+                 Defre.Check.validate_deps(
+                   deps,
+                   {unquote(captures), unquote(mods)},
+                   unquote(Macro.escape({mod, name, arity}))
+                 )
+
+                 Witchcraft.Monad.monad %Right{} do
+                   unquote(injected_blk)
+                 end
+               end
              end}
 
           acc ++ [do_blk]
@@ -96,13 +103,13 @@ defmodule Defre.Inject do
     {name, 0}
   end
 
-  def inject_ast_recursively(blk, env) do
+  def inject_ast_recursively(blk, env, config) do
     with {:ok, ^blk} <- blk |> check_no_modifier_recursively() do
       {injected_blk, {captures, mods}} =
         blk
         |> expand_recursively!(env)
         |> mark_remote_call_recursively!()
-        |> inject_recursively!()
+        |> inject_recursively!(config)
 
       {:ok, {injected_blk, captures, mods}}
     end
@@ -167,19 +174,22 @@ defmodule Defre.Inject do
     ast
   end
 
-  defp inject_recursively!(ast) do
+  defp inject_recursively!(ast, config) do
     ast
     |> Macro.postwalk({[], []}, fn ast, {captures, mods} ->
-      {injected_ast, new_caputres, new_mods} = inject(ast)
+      {injected_ast, new_caputres, new_mods} = inject(ast, config)
       {injected_ast, {new_caputres ++ captures, new_mods ++ mods}}
     end)
   end
 
-  defp inject({_func, [{:skip_inject, true} | _], _args} = ast) do
+  defp inject({_func, [{:skip_inject, true} | _], _args} = ast, _config) do
     {ast, [], []}
   end
 
-  defp inject({{:., _dot_ctx, [mod, name]}, _call_ctx, args} = ast)
+  defp inject({{:., _dot_ctx, [mod, name]}, _call_ctx, args} = ast, %{
+         mode: {:reader, :either},
+         reader_modules: reader_modules
+       })
        when is_atom(name) and is_list(args) do
     if AST.is_module_ast(mod) and AST.unquote_module_ast(mod) not in @uninjectable do
       arity = Enum.count(args)
@@ -198,13 +208,22 @@ defmodule Defre.Inject do
           ).(unquote_splicing(args))
         end
 
-      {injected_call, [capture], [mod]}
+      reader_call =
+        if AST.unquote_module_ast(mod) in reader_modules do
+          quote do
+            unquote(injected_call) |> Algae.Reader.run(deps)
+          end
+        else
+          injected_call
+        end
+
+      {reader_call, [capture], [mod]}
     else
       {ast, [], []}
     end
   end
 
-  defp inject(ast) do
+  defp inject(ast, _config) do
     {ast, [], []}
   end
 
