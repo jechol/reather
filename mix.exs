@@ -5,7 +5,7 @@ defmodule Defr.MixProject do
 
   def project do
     [
-      app: :defre,
+      app: :defr,
       version: @version,
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
@@ -13,7 +13,7 @@ defmodule Defr.MixProject do
       deps: deps(),
       package: package(),
       description: "Unobtrusive Dependency Injector for Elixir",
-      source_url: "https://github.com/trevorite/defre",
+      source_url: "https://github.com/trevorite/defr",
       docs: docs()
     ]
   end
@@ -46,7 +46,7 @@ defmodule Defr.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/trevorite/defre"},
+      links: %{"GitHub" => "https://github.com/trevorite/defr"},
       maintainers: ["Jechol Lee(mr.trevorite@gmail.com)"]
     ]
   end
@@ -54,9 +54,9 @@ defmodule Defr.MixProject do
   defp docs() do
     [
       main: "readme",
-      name: "defre",
-      canonical: "http://hexdocs.pm/defre",
-      source_url: "https://github.com/trevorite/defre",
+      name: "defr",
+      canonical: "http://hexdocs.pm/defr",
+      source_url: "https://github.com/trevorite/defr",
       extras: [
         "README.md"
       ]

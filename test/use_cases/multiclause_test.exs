@@ -4,8 +4,8 @@ defmodule Defr.MulticlauseTest do
   use Defr
 
   defmodule Multi do
-    defre add(a, 0), do: Calc.id(a)
-    defre add(a, b), do: Calc.sum(a, b)
+    defr(add(a, 0), do: Calc.id(a))
+    defr(add(a, b), do: Calc.sum(a, b))
   end
 
   test "Multiclause with pattern matching works" do

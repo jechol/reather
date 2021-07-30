@@ -2,18 +2,17 @@ defmodule Defr do
   defmacro __using__(_) do
     quote do
       import Defr, only: :macros
-      alias Algae.Reader
 
       @before_compile unquote(Defr.Inject)
     end
   end
 
   @doc """
-  `defre` transforms a function to accept a map where dependent functions and modules can be injected.
+  `defr` transforms a function to accept a map where dependent functions and modules can be injected.
 
       use Defr
 
-      defre send_welcome_email(user_id) do
+      defr send_welcome_email(user_id) do
         %{email: email} = Repo.get(User, user_id)
 
         welcome_email(to: email)
@@ -49,7 +48,7 @@ defmodule Defr do
         assert_receive :email_sent
       end
 
-  `defre` raises if the passed map includes a function or a module that's not used within the injected function.
+  `defr` raises if the passed map includes a function or a module that's not used within the injected function.
   You can disable this by adding `strict: false` option.
 
       test "send_welcome_email with strict: false" do
@@ -61,7 +60,7 @@ defmodule Defr do
       end
   """
 
-  defmacro defre(head, body) do
+  defmacro defr(head, body) do
     alias Defr.Inject
 
     original =
@@ -74,11 +73,11 @@ defmodule Defr do
   end
 
   defp trace(injected, original, %Macro.Env{file: file, line: line}) do
-    if Application.get_env(:defre, :trace, false) do
+    if Application.get_env(:defr, :trace, false) do
       dash = "=============================="
 
       IO.puts("""
-      #{dash} defre #{file}:#{line} #{dash}
+      #{dash} defr #{file}:#{line} #{dash}
       #{original |> Macro.to_string()}
       #{dash} into #{dash}"
       #{injected |> Macro.to_string()}

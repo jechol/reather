@@ -156,9 +156,9 @@ defmodule Defr.InjectTest do
 
   describe "inject_function" do
     test "success case for non-reader" do
-      {:defre, _, [head, [do: blk]]} =
+      {:defr, _, [head, [do: blk]]} =
         quote do
-          defre add(a, b) do
+          defr add(a, b) do
             case a do
               false -> Calc.sum(a, b)
               true -> Calc.macro_sum(a, b)
@@ -201,9 +201,9 @@ defmodule Defr.InjectTest do
     end
 
     test "success case for reader" do
-      {:defre, _, [head, [do: blk]]} =
+      {:defr, _, [head, [do: blk]]} =
         quote do
-          defre add(a, b) do
+          defr add(a, b) do
             case a do
               false -> Calc.sum(a, b)
               true -> Calc.macro_sum(a, b)
@@ -248,7 +248,7 @@ defmodule Defr.InjectTest do
 
     test "Compile error case" do
       assert_raise CompileError, ~r(import/require/use), fn ->
-        :code.priv_dir(:defre)
+        :code.priv_dir(:defr)
         |> Path.join("import_in_inject.ex")
         |> Code.eval_file()
       end

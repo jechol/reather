@@ -1,10 +1,10 @@
-![](https://github.com/trevorite/defre/blob/master/brand/logo.png?raw=true)
+![](https://github.com/trevorite/defr/blob/master/brand/logo.png?raw=true)
 
-[![mix test](https://github.com/trevorite/defre/workflows/mix%20test/badge.svg)](https://github.com/trevorite/defre/actions)
-[![Hex version badge](https://img.shields.io/hexpm/v/defre.svg)](https://hex.pm/packages/defre)
-[![License badge](https://img.shields.io/hexpm/l/defre.svg)](https://github.com/trevorite/defre/blob/master/LICENSE.md)
+[![mix test](https://github.com/trevorite/defr/workflows/mix%20test/badge.svg)](https://github.com/trevorite/defr/actions)
+[![Hex version badge](https://img.shields.io/hexpm/v/defr.svg)](https://hex.pm/packages/defr)
+[![License badge](https://img.shields.io/hexpm/l/defr.svg)](https://github.com/trevorite/defr/blob/master/LICENSE.md)
 
-`defre` is `def` for Witchcraft's Reader, Either monads.
+`defr` is `def` for Witchcraft's Reader, Either monads.
 
 ## Why?
 
@@ -32,28 +32,28 @@ end
 
 First, I believe that this approach is too obtrusive as it requires modifying the function body to make it testable. Second, with `Mailer` replaced with `mailer`, the compiler no longer check the existence of `Mailer.send/1`.
 
-`defre` does not require you to modify function arguments or body. It allows injecting different mocks to each function. It also does not limit using `:async` option as mocks are contained in each test function.
+`defr` does not require you to modify function arguments or body. It allows injecting different mocks to each function. It also does not limit using `:async` option as mocks are contained in each test function.
 
 ## Installation
 
-The package can be installed by adding `defre` to your list of dependencies
+The package can be installed by adding `defr` to your list of dependencies
 in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:defre, "~> 0.1"}]
+  [{:defr, "~> 0.1"}]
 end
 ```
 
-To format `defre` like `def`, add following to your `.formatter.exs`
+To format `defr` like `def`, add following to your `.formatter.exs`
 
 ```elixir
-locals_without_parens: [defre: 2]
+locals_without_parens: [defr: 2]
 ```
 
 ## Documentation
 
-API documentation is available at [https://hexdocs.pm/defre](https://hexdocs.pm/defre)
+API documentation is available at [https://hexdocs.pm/defr](https://hexdocs.pm/defr)
 
 ## Usage
 
@@ -147,7 +147,7 @@ Note that `Process.send(self(), :email_sent)` is surrounded by `fn _ -> end` whe
 ```elixir
 import Defr
 
-defre send_welcome_email(user_id) do
+defr send_welcome_email(user_id) do
   %{email: email} = Repo.get(User, user_id)
 
   welcome_email(to: email)

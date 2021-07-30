@@ -28,7 +28,7 @@ defmodule Defr.Inject do
               raise CompileError,
                 file: file,
                 line: line,
-                description: "Cannot import/require/use inside defre. Move it to module level."
+                description: "Cannot import/require/use inside defr. Move it to module level."
           end
 
         {key, blk} ->
