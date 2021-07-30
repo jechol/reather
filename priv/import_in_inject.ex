@@ -1,5 +1,5 @@
 defmodule ImportInInject do
-  import Defre
+  use Defre
 
   defre str_to_atom(str) do
     import Calc

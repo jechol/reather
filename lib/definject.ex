@@ -1,8 +1,16 @@
 defmodule Defre do
+  defmacro __using__(_) do
+    quote do
+      import Defre, only: :macros
+      alias Algae.Reader
+      alias Algae.Either.{Left, Right}
+    end
+  end
+
   @doc """
   `defre` transforms a function to accept a map where dependent functions and modules can be injected.
 
-      import Defre
+      use Defre
 
       defre send_welcome_email(user_id) do
         %{email: email} = Repo.get(User, user_id)
@@ -87,7 +95,7 @@ defmodule Defre do
   @doc """
   If you don't need pattern matching in mock function, `mock/1` can be used to reduce boilerplates.
 
-      import Defre
+      use Defre
 
       test "send_welcome_email with mock/1" do
         Accounts.send_welcome_email(

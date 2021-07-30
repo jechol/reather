@@ -15,17 +15,21 @@ defmodule Defre.Inject do
       when is_list(body) do
     inject_results =
       body
-      |> Enum.map(fn {key, blk} ->
-        case blk |> inject_ast_recursively(env, config) do
-          {:ok, {_, _, _} = value} ->
-            {key, value}
+      |> Enum.map(fn
+        {key = :do, blk} ->
+          case blk |> inject_ast_recursively(env, config) do
+            {:ok, {_, _, _} = value} ->
+              {key, value}
 
-          {:error, :modifier} ->
-            raise CompileError,
-              file: file,
-              line: line,
-              description: "Cannot import/require/use inside defre. Move it to module level."
-        end
+            {:error, :modifier} ->
+              raise CompileError,
+                file: file,
+                line: line,
+                description: "Cannot import/require/use inside defre. Move it to module level."
+          end
+
+        {key, blk} ->
+          {key, {blk, [], []}}
       end)
 
     injected_body =
@@ -40,12 +44,6 @@ defmodule Defre.Inject do
                Witchcraft.Monad.monad %Algae.Reader{} do
                  deps <- Algae.Reader.ask()
 
-                 #  Defre.Check.validate_deps(
-                 #    deps,
-                 #    {unquote(captures), unquote(mods)},
-                 #    unquote(Macro.escape({mod, name, arity}))
-                 #  )
-
                  return(
                    Witchcraft.Monad.monad %Algae.Either.Right{} do
                      unquote(injected_blk)
@@ -56,8 +54,8 @@ defmodule Defre.Inject do
 
           acc ++ [do_blk]
 
-        {key, {injected_blk, _, _}}, acc ->
-          acc ++ [{key, injected_blk}]
+        {key, {blk, _, _}}, acc ->
+          acc ++ [{key, blk}]
       end)
 
     quote do

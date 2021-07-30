@@ -1,6 +1,6 @@
-defmodule DefinjectTest do
+defmodule DefreTest do
   use ExUnit.Case, async: true
-  import Defre
+  use Defre
 
   defmodule Nested do
     defmodule DoubleNested do
@@ -41,31 +41,33 @@ defmodule DefinjectTest do
           :anonymous_fun -> [1, 2] |> Enum.map(&Calc.id(&1))
           :string_concat -> "#{[1, 2] |> Enum.map(&"*#{&1}*") |> Enum.join()}"
         end
+        |> Right.new()
       end
 
       defre hash(<<data::binary>>) do
-        :crypto.hash(:md5, <<data::binary>>)
+        :crypto.hash(:md5, <<data::binary>>) |> Right.new()
       end
     end
 
     test "original works" do
-      assert Foo.bar(:mod) == :arity_0_quack
-      assert Foo.bar(:remote) == 2
-      assert Foo.bar(:nested_remote) == {99, :hello}
-      assert Foo.bar(:pipe) == "1"
-      assert Foo.bar(:macro) == 30
-      assert Foo.bar(:capture).(20, 40) == 60
-      assert Foo.bar(:kernel_plus) == 11
-      assert Foo.bar(:string_to_atom) == :foobar
-      assert Foo.bar(:string_to_integer) == 100
+      assert Foo.bar(:mod) |> Reader.run(%{}) == :arity_0_quack |> Right.new()
+      assert Foo.bar(:remote) |> Reader.run(%{}) == 2 |> Right.new()
+      assert Foo.bar(:nested_remote) |> Reader.run(%{}) == {99, :hello} |> Right.new()
+      assert Foo.bar(:pipe) |> Reader.run(%{}) == "1" |> Right.new()
+      assert Foo.bar(:macro) |> Reader.run(%{}) == 30 |> Right.new()
+      assert (Foo.bar(:capture) |> Reader.run(%{})).right.(20, 40) == 60
+      assert Foo.bar(:kernel_plus) |> Reader.run(%{}) == 11 |> Right.new()
+      assert Foo.bar(:string_to_atom) |> Reader.run(%{}) == :foobar |> Right.new()
+      assert Foo.bar(:string_to_integer) |> Reader.run(%{}) == 100 |> Right.new()
 
-      assert Foo.bar(:local) == :arity_0_quack
-      assert Foo.bar(:import) == 10
-      assert Foo.bar(:anonymous_fun) == [1, 2]
-      assert Foo.bar(:string_concat) == "*1**2*"
+      assert Foo.bar(:local) |> Reader.run(%{}) == :arity_0_quack |> Right.new()
+      assert Foo.bar(:import) |> Reader.run(%{}) == 10 |> Right.new()
+      assert Foo.bar(:anonymous_fun) |> Reader.run(%{}) == [1, 2] |> Right.new()
+      assert Foo.bar(:string_concat) |> Reader.run(%{}) == "*1**2*" |> Right.new()
 
-      assert Foo.hash("hello") ==
+      assert Foo.hash("hello") |> Reader.run(%{}) ==
                <<93, 65, 64, 42, 188, 75, 42, 118, 185, 113, 157, 145, 16, 23, 197, 146>>
+               |> Right.new()
     end
 
     defmodule Baz do
