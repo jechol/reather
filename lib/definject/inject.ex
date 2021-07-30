@@ -6,24 +6,6 @@ defmodule Defre.Inject do
   @uninjectable [:erlang, Kernel, Kernel.Utils]
   @modifiers [:import, :require, :use]
 
-  defp inject_head(head) do
-    call_for_head = call_for_head(head)
-    fa = get_fa(head)
-
-    quote do
-      Module.register_attribute(__MODULE__, :definjected, accumulate: true)
-
-      unless unquote(fa) in Module.get_attribute(__MODULE__, :definjected) do
-        def unquote(call_for_head)
-        @definjected unquote(fa)
-      end
-    end
-  end
-
-  def inject_function(head, [], _env, _config) do
-    inject_head(head)
-  end
-
   def inject_function(
         head,
         body,
@@ -81,18 +63,6 @@ defmodule Defre.Inject do
 
       def unquote(head), unquote(injected_body)
     end
-  end
-
-  defp get_fa({:when, _, [name_args, _when_cond]}) do
-    get_fa(name_args)
-  end
-
-  defp get_fa({name, _, args}) when is_list(args) do
-    {name, args |> Enum.count()}
-  end
-
-  defp get_fa({name, _, _}) do
-    {name, 0}
   end
 
   def inject_ast_recursively(blk, env, config) do
@@ -219,23 +189,23 @@ defmodule Defre.Inject do
     {ast, [], []}
   end
 
-  def call_for_head({:when, _when_ctx, [name_args, _when_cond]}) do
+  defp call_for_head({:when, _when_ctx, [name_args, _when_cond]}) do
     call_for_head(name_args)
   end
 
-  def call_for_head({name, meta, context}) when not is_list(context) do
+  defp call_for_head({name, meta, context}) when not is_list(context) do
     # Normalize function head.
-    # def some do: nil end   ->   def some(), do: nil end
+    # defp some do: nil end   ->   defp some(), do: nil end
     call_for_head({name, meta, []})
   end
 
-  def call_for_head({name, meta, params}) when is_list(params) do
+  defp call_for_head({name, meta, params}) when is_list(params) do
     deps =
       quote do
         deps \\ %{}
       end
 
-    # def div(n, 0) -> def div(a, b)
+    # defp div(n, 0) -> defp div(a, b)
     params =
       for {p, index} <- params |> Enum.with_index() do
         AST.Param.remove_pattern(p, index)
@@ -244,33 +214,33 @@ defmodule Defre.Inject do
     {name, meta, params ++ [deps]}
   end
 
-  def call_for_clause({:when, when_ctx, [name_args, when_cond]}) do
+  defp call_for_clause({:when, when_ctx, [name_args, when_cond]}) do
     name_args = call_for_clause(name_args)
     {:when, when_ctx, [name_args, when_cond]}
   end
 
-  def call_for_clause({name, meta, context}) when not is_list(context) do
+  defp call_for_clause({name, meta, context}) when not is_list(context) do
     # Normalize function head.
-    # def some do: nil end   ->   def some(), do: nil end
+    # defp some do: nil end   ->   defp some(), do: nil end
     call_for_clause({name, meta, []})
   end
 
-  def call_for_clause({name, meta, params}) when is_list(params) do
+  defp call_for_clause({name, meta, params}) when is_list(params) do
     deps = quote do: %{} = deps
 
-    params = params |> Enum.map(&AST.Param.remove_default/1)
+    params = params |> Enum.map(&AST.Param.remove_defpault/1)
     {name, meta, params ++ [deps]}
   end
 
-  def get_name_arity({:when, _when_ctx, [name_args, _when_cond]}) do
+  defp get_name_arity({:when, _when_ctx, [name_args, _when_cond]}) do
     get_name_arity(name_args)
   end
 
-  def get_name_arity({name, _, context}) when not is_list(context) do
+  defp get_name_arity({name, _, context}) when not is_list(context) do
     {name, 0}
   end
 
-  def get_name_arity({name, _, params}) when is_list(params) do
+  defp get_name_arity({name, _, params}) when is_list(params) do
     {name, params |> Enum.count()}
   end
 end
