@@ -1,9 +1,9 @@
-defmodule Definject.UseTest do
+defmodule Defre.UseTest do
   use ExUnit.Case, async: true
-  import Definject
+  import Defre
 
   defmodule WithNormalFunction do
-    use Definject
+    use Defre
 
     def add(a, b), do: Calc.sum(a, b)
   end
@@ -14,7 +14,7 @@ defmodule Definject.UseTest do
   end
 
   defmodule WithBodylessClause do
-    use Definject
+    use Defre
 
     def add(a, b \\ 0)
 

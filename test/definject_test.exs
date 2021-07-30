@@ -1,6 +1,6 @@
 defmodule DefinjectTest do
   use ExUnit.Case, async: true
-  import Definject
+  import Defre
 
   defmodule Nested do
     defmodule DoubleNested do
@@ -11,7 +11,7 @@ defmodule DefinjectTest do
 
   alias Nested.DoubleNested
 
-  describe "definject" do
+  describe "defre" do
     def quack(), do: nil
 
     defmodule Foo do
@@ -23,7 +23,7 @@ defmodule DefinjectTest do
 
       def id(v), do: v
 
-      definject bar(type) when is_atom(type) do
+      defre bar(type) when is_atom(type) do
         case type do
           # Remote
           :mod -> __MODULE__.quack()
@@ -43,7 +43,7 @@ defmodule DefinjectTest do
         end
       end
 
-      definject hash(<<data::binary>>) do
+      defre hash(<<data::binary>>) do
         :crypto.hash(:md5, <<data::binary>>)
       end
     end

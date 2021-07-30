@@ -1,8 +1,8 @@
-defmodule Definject.Def do
+defmodule Defre.Def do
   defmacro def(call, expr \\ nil) do
-    if Application.get_env(:definject, :enable, Mix.env() == :test) do
+    if Application.get_env(:defre, :enable, Mix.env() == :test) do
       quote do
-        Definject.definject(unquote(call), unquote(expr))
+        Defre.defre(unquote(call), unquote(expr))
       end
     else
       quote do

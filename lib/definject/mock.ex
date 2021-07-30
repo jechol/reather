@@ -1,4 +1,4 @@
-defmodule Definject.Mock do
+defmodule Defre.Mock do
   @moduledoc false
 
   def decorate_with_fn({{:__aliases__, _, _}, _} = orig) do

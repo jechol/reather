@@ -1,8 +1,8 @@
-defmodule Definject.InjectTest do
+defmodule Defre.InjectTest do
   use ExUnit.Case, async: true
-  require Definject.Inject
-  alias Definject.Inject
-  alias Definject.AST
+  require Defre.Inject
+  alias Defre.Inject
+  alias Defre.AST
 
   describe "call_for_head" do
     test "with parenthesis" do
@@ -346,9 +346,9 @@ defmodule Definject.InjectTest do
 
   describe "inject_function" do
     test "success case" do
-      {:definject, _, [head, [do: blk]]} =
+      {:defre, _, [head, [do: blk]]} =
         quote do
-          definject add(a, b) do
+          defre add(a, b) do
             case a do
               false -> Calc.sum(a, b)
               true -> Calc.macro_sum(a, b)
@@ -368,10 +368,10 @@ defmodule Definject.InjectTest do
           )
 
           def add(a, b, %{} = deps) do
-            Definject.Check.validate_deps(
+            Defre.Check.validate_deps(
               deps,
               {[&Calc.sum/2], [Calc]},
-              {Definject.InjectTest, :add, 2}
+              {Defre.InjectTest, :add, 2}
             )
 
             case a do
@@ -394,7 +394,7 @@ defmodule Definject.InjectTest do
 
     test "Compile error case" do
       assert_raise CompileError, ~r(import/require/use), fn ->
-        :code.priv_dir(:definject)
+        :code.priv_dir(:defre)
         |> Path.join("import_in_inject.ex")
         |> Code.eval_file()
       end

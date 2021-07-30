@@ -1,7 +1,7 @@
-defmodule Definject.Inject do
+defmodule Defre.Inject do
   @moduledoc false
 
-  alias Definject.AST
+  alias Defre.AST
 
   @uninjectable [:erlang, Kernel, Kernel.Utils]
   @modifiers [:import, :require, :use]
@@ -45,7 +45,7 @@ defmodule Definject.Inject do
             raise CompileError,
               file: file,
               line: line,
-              description: "Cannot import/require/use inside definject. Move it to module level."
+              description: "Cannot import/require/use inside defre. Move it to module level."
         end
       end)
 
@@ -62,7 +62,7 @@ defmodule Definject.Inject do
           do_blk =
             {:do,
              quote do
-               Definject.Check.validate_deps(
+               Defre.Check.validate_deps(
                  deps,
                  {unquote(captures), unquote(mods)},
                  unquote(Macro.escape({mod, name, arity}))

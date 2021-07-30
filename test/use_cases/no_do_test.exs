@@ -1,11 +1,11 @@
-defmodule Definject.NoDoTest do
+defmodule Defre.NoDoTest do
   use ExUnit.Case, async: true
-  import Definject
+  import Defre
 
   defmodule ForDocumentation do
-    definject add(a, b)
+    defre add(a, b)
 
-    definject add(a, b), do: Calc.sum(a, b)
+    defre add(a, b), do: Calc.sum(a, b)
   end
 
   test "no do: for documentation" do
@@ -14,9 +14,9 @@ defmodule Definject.NoDoTest do
   end
 
   defmodule ForDefault do
-    definject add(a, b \\ 0)
+    defre add(a, b \\ 0)
 
-    definject add(a, b), do: Calc.sum(a, b)
+    defre add(a, b), do: Calc.sum(a, b)
   end
 
   test "no do: for default" do

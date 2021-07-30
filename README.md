@@ -1,8 +1,8 @@
-![](https://github.com/jechol/definject/blob/master/brand/logo.png?raw=true)
+![](https://github.com/jechol/defre/blob/master/brand/logo.png?raw=true)
 
-[![mix test](https://github.com/jechol/definject/workflows/mix%20test/badge.svg)](https://github.com/jechol/definject/actions)
-[![Hex version badge](https://img.shields.io/hexpm/v/definject.svg)](https://hex.pm/packages/definject)
-[![License badge](https://img.shields.io/hexpm/l/definject.svg)](https://github.com/jechol/definject/blob/master/LICENSE.md)
+[![mix test](https://github.com/jechol/defre/workflows/mix%20test/badge.svg)](https://github.com/jechol/defre/actions)
+[![Hex version badge](https://img.shields.io/hexpm/v/defre.svg)](https://hex.pm/packages/defre)
+[![License badge](https://img.shields.io/hexpm/l/defre.svg)](https://github.com/jechol/defre/blob/master/LICENSE.md)
 
 Unobtrusive Dependency Injector for Elixir
 
@@ -32,43 +32,43 @@ end
 
 First, I believe that this approach is too obtrusive as it requires modifying the function body to make it testable. Second, with `Mailer` replaced with `mailer`, the compiler no longer check the existence of `Mailer.send/1`.
 
-`definject` does not require you to modify function arguments or body. It allows injecting different mocks to each function. It also does not limit using `:async` option as mocks are contained in each test function.
+`defre` does not require you to modify function arguments or body. It allows injecting different mocks to each function. It also does not limit using `:async` option as mocks are contained in each test function.
 
 ## Installation
 
-The package can be installed by adding `definject` to your list of dependencies
+The package can be installed by adding `defre` to your list of dependencies
 in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:definject, "~> 1.2"}]
+  [{:defre, "~> 1.2"}]
 end
 ```
 
-By default, `definject` is replaced with `def` in all but the test environment. Add the below configuration to enable in other environments.
+By default, `defre` is replaced with `def` in all but the test environment. Add the below configuration to enable in other environments.
 
 ```elixir
-config :definject, :enable, true
+config :defre, :enable, true
 ```
 
-To format `definject` like `def`, add following to your `.formatter.exs`
+To format `defre` like `def`, add following to your `.formatter.exs`
 
 ```elixir
-locals_without_parens: [definject: 1, definject: 2]
+locals_without_parens: [defre: 1, defre: 2]
 ```
 
 ## Documentation
 
-API documentation is available at [https://hexdocs.pm/definject](https://hexdocs.pm/definject)
+API documentation is available at [https://hexdocs.pm/defre](https://hexdocs.pm/defre)
 
 ## Usage
 
-### use Definject
+### use Defre
 
-`use Definject` transforms `def` to accept a extra argument `deps` where dependent functions and modules can be injected.
+`use Defre` transforms `def` to accept a extra argument `deps` where dependent functions and modules can be injected.
 
 ```elixir
-use Definject
+use Defre
 
 def send_welcome_email(user_id) do
   %{email: email} = Repo.get(User, user_id)
@@ -129,7 +129,7 @@ end
 If you don't need pattern matching in mock function, `mock/1` can be used to reduce boilerplates.
 
 ```elixir
-import Definject
+import Defre
 
 test "send_welcome_email with mock/1" do
   Accounts.send_welcome_email(
@@ -146,14 +146,14 @@ end
 
 Note that `Process.send(self(), :email_sent)` is surrounded by `fn _ -> end` when expanded.
 
-### import Definject
+### import Defre
 
-`import Definject` instead of `use Definject` if you want to manually select functions to inject.
+`import Defre` instead of `use Defre` if you want to manually select functions to inject.
 
 ```elixir
-import Definject
+import Defre
 
-definject send_welcome_email(user_id) do
+defre send_welcome_email(user_id) do
   %{email: email} = Repo.get(User, user_id)
 
   welcome_email(to: email)

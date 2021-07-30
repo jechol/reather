@@ -1,11 +1,11 @@
-defmodule Definject.MixProject do
+defmodule Defre.MixProject do
   use Mix.Project
 
   @version "1.2.1"
 
   def project do
     [
-      app: :definject,
+      app: :defre,
       version: @version,
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
@@ -13,7 +13,7 @@ defmodule Definject.MixProject do
       deps: deps(),
       package: package(),
       description: "Unobtrusive Dependency Injector for Elixir",
-      source_url: "https://github.com/jechol/definject",
+      source_url: "https://github.com/jechol/defre",
       docs: docs()
     ]
   end
@@ -41,7 +41,7 @@ defmodule Definject.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/jechol/definject"},
+      links: %{"GitHub" => "https://github.com/jechol/defre"},
       maintainers: ["Jechol Lee(mr.jechol@gmail.com)"]
     ]
   end
@@ -49,9 +49,9 @@ defmodule Definject.MixProject do
   defp docs() do
     [
       main: "readme",
-      name: "definject",
-      canonical: "http://hexdocs.pm/definject",
-      source_url: "https://github.com/jechol/definject",
+      name: "defre",
+      canonical: "http://hexdocs.pm/defre",
+      source_url: "https://github.com/jechol/defre",
       extras: [
         "README.md"
       ]

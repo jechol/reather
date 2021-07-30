@@ -1,6 +1,6 @@
 # Used by "mix format"
 
-locals_without_parens = [definject: 1, definject: 2]
+locals_without_parens = [defre: 1, defre: 2]
 
 [
   locals_without_parens: locals_without_parens,

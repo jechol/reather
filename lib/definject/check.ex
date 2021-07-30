@@ -1,4 +1,4 @@
-defmodule Definject.Check do
+defmodule Defre.Check do
   @moduledoc false
 
   @uninjectable [:erlang, Kernel, Kernel.Utils]
@@ -11,7 +11,7 @@ defmodule Definject.Check do
     strict = Map.get(deps, :strict, true)
     deps = deps |> Map.drop([:strict])
 
-    if Application.get_env(:definject, :trace, false) do
+    if Application.get_env(:defre, :trace, false) do
       IO.puts(
         "Validating depedencies for #{deps |> Map.keys() |> inspect} against #{
           {used_captures, used_mods} |> inspect

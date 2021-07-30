@@ -1,15 +1,15 @@
-defmodule Definject.TryTest do
+defmodule Defre.TryTest do
   use ExUnit.Case, async: true
-  import Definject
+  import Defre
 
   def foo(_arg) do
     raise RuntimeError, "foo/1 is not supposed to be called."
   end
 
   defmodule Try do
-    alias Definject.TryTest
+    alias Defre.TryTest
 
-    definject execute(command, receiver) do
+    defre execute(command, receiver) do
       case command do
         :rescue -> raise RuntimeError, "rescue!"
         :catch -> throw({:ok, :catch})

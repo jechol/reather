@@ -1,7 +1,7 @@
 defmodule ImportInInject do
-  import Definject
+  import Defre
 
-  definject str_to_atom(str) do
+  defre str_to_atom(str) do
     import Calc
     to_int(str)
   end

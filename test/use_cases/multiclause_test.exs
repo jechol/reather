@@ -1,10 +1,10 @@
-defmodule Definject.MulticlauseTest do
+defmodule Defre.MulticlauseTest do
   use ExUnit.Case, async: true
-  import Definject
+  import Defre
 
   defmodule Multi do
-    definject add(a, 0), do: Calc.id(a)
-    definject add(a, b), do: Calc.sum(a, b)
+    defre add(a, 0), do: Calc.id(a)
+    defre add(a, b), do: Calc.sum(a, b)
   end
 
   test "Multiclause with pattern matching works" do

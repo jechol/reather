@@ -1,4 +1,4 @@
-defmodule Definject.AST do
+defmodule Defre.AST do
   @moduledoc false
 
   def is_module_ast({:__aliases__, _, _}), do: true
