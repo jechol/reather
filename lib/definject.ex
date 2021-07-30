@@ -1,12 +1,4 @@
 defmodule Defre do
-  @doc false
-  defmacro __using__(_opts) do
-    quote do
-      import Kernel, except: [def: 1, def: 2]
-      import Defre.Def, only: [def: 1, def: 2]
-    end
-  end
-
   @doc """
   `defre` transforms a function to accept a map where dependent functions and modules can be injected.
 
@@ -59,35 +51,22 @@ defmodule Defre do
         })
       end
   """
-  defmacro defre(head, body \\ nil)
 
-  defmacro defre(head, nil) do
-    original =
-      quote do
-        def unquote(head)
-      end
-
-    do_definject(head, [], original, __CALLER__)
-  end
+  @reader_modules Application.compile_env(:defre, :reader_modules, [])
 
   defmacro defre(head, body) do
+    alias Defre.Inject
+
     original =
       quote do
         def unquote(head), unquote(body)
       end
 
-    do_definject(head, body, original, __CALLER__)
-  end
-
-  defp do_definject(head, body, original, %Macro.Env{} = env) do
-    alias Defre.Inject
-
-    if Application.get_env(:defre, :enable, Mix.env() == :test) do
-      Inject.inject_function(head, body, env, %{mode: {:reader, :either}, reader_modules: []})
-      |> trace(original, env)
-    else
-      original
-    end
+    Inject.inject_function(head, body, __CALLER__, %{
+      mode: {:reader, :either},
+      reader_modules: @reader_modules
+    })
+    |> trace(original, __CALLER__)
   end
 
   defp trace(injected, original, %Macro.Env{file: file, line: line}) do

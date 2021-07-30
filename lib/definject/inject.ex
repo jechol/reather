@@ -3,7 +3,7 @@ defmodule Defre.Inject do
 
   alias Defre.AST
 
-  @uninjectable [:erlang, Kernel, Kernel.Utils]
+  @uninjectable [:erlang, Kernel, Kernel.Utils, Enum, String, String.Chars]
   @modifiers [:import, :require, :use]
 
   def inject_function(
@@ -164,11 +164,12 @@ defmodule Defre.Inject do
           Map.get(
             deps,
             unquote(capture),
-            :erlang.make_fun(
-              Map.get(deps, unquote(mod), unquote(mod)),
-              unquote(name),
-              unquote(arity)
-            )
+            unquote(capture)
+            # :erlang.make_fun(
+            #   Map.get(deps, unquote(mod), unquote(mod)),
+            #   unquote(name),
+            #   unquote(arity)
+            # )
           ).(unquote_splicing(args))
         end
 
