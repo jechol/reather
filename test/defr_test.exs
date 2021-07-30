@@ -56,7 +56,7 @@ defmodule DefrTest do
       assert Foo.bar(:nested_remote) |> Reader.run(%{}) == {99, :hello}
       assert Foo.bar(:pipe) |> Reader.run(%{}) == "1"
       assert Foo.bar(:macro) |> Reader.run(%{}) == 30
-      assert (Foo.bar(:capture) |> Reader.run(%{})).right.(20, 40) == 60
+      assert (Foo.bar(:capture) |> Reader.run(%{})).(20, 40) == 60
       assert Foo.bar(:kernel_plus) |> Reader.run(%{}) == 11
       assert Foo.bar(:string_to_atom) |> Reader.run(%{}) == :foobar
       assert Foo.bar(:string_to_integer) |> Reader.run(%{}) == 100
@@ -97,7 +97,7 @@ defmodule DefrTest do
              |> Reader.run(%{&Foo.id/1 => fn _ -> "100" end, &Enum.count/1 => fn _ -> 9999 end}) ==
                "100"
 
-      assert Foo.bar(:macro) |> Reader.run(%{&Calc.sum/2 => fn _, _ -> 999 end, strict: false}) ==
+      assert Foo.bar(:macro) |> Reader.run(%{&Calc.sum/2 => fn _, _ -> 999 end}) ==
                30
 
       assert Foo.bar(:string_to_atom) |> Reader.run(%{&String.to_atom/1 => fn _ -> :injected end}) ==
@@ -109,9 +109,7 @@ defmodule DefrTest do
   end
 
   test "mock" do
-    m = mock(%{&Enum.count/1 => (fn -> 100 end).(), &Enum.map/2 => 200, strict: false})
-
-    assert m[:strict] == false
+    m = mock(%{&Enum.count/1 => (fn -> 100 end).(), &Enum.map/2 => 200})
 
     f1 = m[&Enum.count/1]
     f2 = m[&Enum.map/2]
