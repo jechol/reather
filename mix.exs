@@ -1,7 +1,7 @@
 defmodule Defre.MixProject do
   use Mix.Project
 
-  @version "1.2.1"
+  @version "0.1"
 
   def project do
     [
