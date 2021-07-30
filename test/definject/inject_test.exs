@@ -192,6 +192,8 @@ defmodule Defre.InjectTest do
       expected =
         quote do
           def add(a, b) do
+            require Witchcraft.Monad
+
             Witchcraft.Monad.monad %Reader{} do
               deps <- Algae.Reader.ask()
 
@@ -231,6 +233,8 @@ defmodule Defre.InjectTest do
       expected =
         quote do
           def add(a, b) do
+            require Witchcraft.Monad
+
             Witchcraft.Monad.monad %Reader{} do
               deps <- Algae.Reader.ask()
 

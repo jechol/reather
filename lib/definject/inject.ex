@@ -63,6 +63,8 @@ defmodule Defre.Inject do
           do_blk =
             {:do,
              quote do
+               require Witchcraft.Monad
+
                Witchcraft.Monad.monad %Reader{} do
                  deps <- Algae.Reader.ask()
 
