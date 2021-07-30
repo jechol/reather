@@ -57,21 +57,11 @@ defmodule Defr.Inject do
           acc ++ [{key, blk}]
       end)
 
-    quote do
-      unquote(accumulate_defr(head))
-      def unquote(head), unquote(injected_body)
-    end
-  end
-
-  defp accumulate_defr(head) do
     fa = get_fa(head)
 
     quote do
-      Module.register_attribute(__MODULE__, :defr, accumulate: true)
-
-      unless unquote(fa) in Module.get_attribute(__MODULE__, :defr) do
-        @defr unquote(fa)
-      end
+      @defr unquote(fa)
+      def unquote(head), unquote(injected_body)
     end
   end
 

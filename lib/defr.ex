@@ -3,6 +3,7 @@ defmodule Defr do
     quote do
       import Defr, only: :macros
 
+      Module.register_attribute(__MODULE__, :defr, accumulate: true)
       @before_compile unquote(Defr.Inject)
     end
   end

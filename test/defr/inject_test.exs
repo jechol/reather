@@ -168,14 +168,7 @@ defmodule Defr.InjectTest do
 
       expected =
         quote do
-          (
-            Module.register_attribute(__MODULE__, :defr, accumulate: true)
-
-            unless {:add, 2} in Module.get_attribute(__MODULE__, :defr) do
-              @defr {:add, 2}
-            end
-          )
-
+          @defr {:add, 2}
           def add(a, b) do
             require Witchcraft.Monad
 
@@ -213,14 +206,7 @@ defmodule Defr.InjectTest do
 
       expected =
         quote do
-          (
-            Module.register_attribute(__MODULE__, :defr, accumulate: true)
-
-            unless {:add, 2} in Module.get_attribute(__MODULE__, :defr) do
-              @defr {:add, 2}
-            end
-          )
-
+          @defr {:add, 2}
           def add(a, b) do
             require Witchcraft.Monad
 

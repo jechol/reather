@@ -34,21 +34,27 @@ defmodule Defr.NestedCallTest do
     end
   end
 
-  test "User.get_by_id" do
+  test "User" do
+    assert [{:get_by_id, 1}] == User.__defr__()
+
     assert %User{id: 1, src: :db} == User.get_by_id(1) |> Reader.run(%{})
 
     assert %User{id: 1, src: :mocked} ==
              User.get_by_id(1) |> Reader.run(mock(%{&User.get_src/0 => :mocked}))
   end
 
-  test "Accounts.get_user_by_id" do
+  test "Accounts" do
+    assert [{:get_user_by_id, 1}] == Accounts.__defr__()
+
     assert %User{id: 1, src: :db} == Accounts.get_user_by_id(1) |> Reader.run(%{})
 
     assert %User{id: 1, src: :mocked} ==
              Accounts.get_user_by_id(1) |> Reader.run(mock(%{&User.get_src/0 => :mocked}))
   end
 
-  test "UserController.profile" do
+  test "UserController" do
+    assert [{:profile, 1}] == UserController.__defr__()
+
     assert %User{id: 1, src: :db} == UserController.profile(1) |> Reader.run(%{})
 
     assert %User{id: 1, src: :mocked} ==
