@@ -3,7 +3,7 @@ defmodule Defre.Inject do
 
   alias Defre.AST
 
-  @uninjectable [:erlang, Kernel, Kernel.Utils, Enum, String, String.Chars]
+  @uninjectable [:erlang, Kernel, Kernel.Utils]
   @modifiers [:import, :require, :use]
 
   def inject_function(

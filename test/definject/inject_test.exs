@@ -62,10 +62,7 @@ defmodule Defre.InjectTest do
 
           case 1 == 1 do
             x when x == true ->
-              Map.get(deps, &Math.pow/2, :erlang.make_fun(Map.get(deps, Math, Math), :pow, 2)).(
-                2,
-                x
-              )
+              Map.get(deps, &Math.pow/2, &Math.pow/2).(2, x)
           end
         end
 
@@ -92,15 +89,9 @@ defmodule Defre.InjectTest do
 
       exp_ast =
         quote do
-          Map.get(deps, &Calc.to_int/1, :erlang.make_fun(Map.get(deps, Calc, Calc), :to_int, 1)).(
-            a
-          ) >>>
+          Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(a) >>>
             fn a_int ->
-              Map.get(
-                deps,
-                &Calc.to_int/1,
-                :erlang.make_fun(Map.get(deps, Calc, Calc), :to_int, 1)
-              ).(b) >>> fn b_int -> a_int + b_int end
+              Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(b) >>> fn b_int -> a_int + b_int end
             end
         end
 
@@ -116,17 +107,9 @@ defmodule Defre.InjectTest do
 
       exp_ast =
         quote do
-          Map.get(deps, &Calc.to_int/1, :erlang.make_fun(Map.get(deps, Calc, Calc), :to_int, 1)).(
-            a
-          ) >>>
+          Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(a) >>>
             fn a_int ->
-              (fn b_int -> a_int + b_int end).(
-                Map.get(
-                  deps,
-                  &Calc.to_int/1,
-                  :erlang.make_fun(Map.get(deps, Calc, Calc), :to_int, 1)
-                ).(b)
-              )
+              (fn b_int -> a_int + b_int end).(Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(b))
             end
         end
 
@@ -151,20 +134,16 @@ defmodule Defre.InjectTest do
       exp_ast =
         quote do
           try do
-            Map.get(deps, &Calc.id/1, :erlang.make_fun(Map.get(deps, Calc, Calc), :id, 1)).(:try)
+            Map.get(deps, &Calc.id/1, &Calc.id/1).(:try)
           rescue
             e in ArithmeticError ->
-              Map.get(deps, &Calc.id/1, :erlang.make_fun(Map.get(deps, Calc, Calc), :id, 1)).(e)
+              Map.get(deps, &Calc.id/1, &Calc.id/1).(e)
           catch
             :error, number ->
-              Map.get(deps, &Calc.id/1, :erlang.make_fun(Map.get(deps, Calc, Calc), :id, 1)).(
-                number
-              )
+              Map.get(deps, &Calc.id/1, &Calc.id/1).(number)
           else
             x ->
-              Map.get(deps, &Calc.id/1, :erlang.make_fun(Map.get(deps, Calc, Calc), :id, 1)).(
-                :else
-              )
+              Map.get(deps, &Calc.id/1, &Calc.id/1).(:else)
           end
         end
 
@@ -201,11 +180,7 @@ defmodule Defre.InjectTest do
                 Witchcraft.Monad.monad %Algae.Either.Right{} do
                   case a do
                     false ->
-                      Map.get(
-                        deps,
-                        &Calc.sum/2,
-                        :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
-                      ).(a, b)
+                      Map.get(deps, &Calc.sum/2, &Calc.sum/2).(a, b)
 
                     true ->
                       import Calc
@@ -244,12 +219,7 @@ defmodule Defre.InjectTest do
                 Witchcraft.Monad.monad %Algae.Either.Right{} do
                   case a do
                     false ->
-                      Map.get(
-                        deps,
-                        &Calc.sum/2,
-                        :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
-                      ).(a, b)
-                      |> Algae.Reader.run(deps)
+                      Map.get(deps, &Calc.sum/2, &Calc.sum/2).(a, b) |> Algae.Reader.run(deps)
 
                     true ->
                       import Calc
