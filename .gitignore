@@ -26,3 +26,5 @@ result*
 playground.ex
 
 .direnv
+
+.mix
