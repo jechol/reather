@@ -8,7 +8,7 @@ defmodule Defr.Inject do
 
   defmacro __before_compile__(_env) do
     quote do
-      def __defr__ do
+      def __reader_funs__ do
         @defr
       end
     end
@@ -42,9 +42,9 @@ defmodule Defr.Inject do
           do_blk =
             {:do,
              quote do
-               require Witchcraft.Monad
+               use Witchcraft.Monad
 
-               Witchcraft.Monad.monad %Algae.Reader{} do
+               monad %Algae.Reader{} do
                  deps <- Algae.Reader.ask()
 
                  return(unquote(injected_blk))
@@ -170,15 +170,6 @@ defmodule Defr.Inject do
         quote do
           Defr.Runner.run({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
         end
-
-      # reader_call =
-      #   if AST.unquote_module_ast(mod) in reader_modules do
-      #     quote do
-      #       unquote(injected_call) |> Algae.Reader.run(deps)
-      #     end
-      #   else
-      #     injected_call
-      #   end
 
       {injected_call, [capture], [mod]}
     else

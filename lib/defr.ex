@@ -2,6 +2,7 @@ defmodule Defr do
   defmacro __using__(_) do
     quote do
       import Defr, only: :macros
+      use Witchcraft.Monad
 
       Module.register_attribute(__MODULE__, :defr, accumulate: true)
       @before_compile unquote(Defr.Inject)

@@ -59,7 +59,7 @@ API documentation is available at [https://hexdocs.pm/defr](https://hexdocs.pm/d
 
 ### use Defr
 
-`use Defr` transforms `def` to accept a extra argument `deps` where dependent functions and modules can be injected.
+`defr` transforms body to be injectable with Witchcraft's Algae.Reader monad.
 
 ```elixir
 use Defr

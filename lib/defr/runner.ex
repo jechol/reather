@@ -3,8 +3,8 @@ defmodule Defr.Runner do
     fun = :erlang.make_fun(m, f, a)
     ret = Map.get(deps, fun, fun) |> :erlang.apply(args)
 
-    if Kernel.function_exported?(m, :__defr__, 0) and
-         {f, a} in Kernel.apply(m, :__defr__, []) do
+    if Kernel.function_exported?(m, :__reader_funs__, 0) and
+         {f, a} in Kernel.apply(m, :__reader_funs__, []) do
       ret |> Algae.Reader.run(deps)
     else
       ret

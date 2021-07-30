@@ -170,9 +170,9 @@ defmodule Defr.InjectTest do
         quote do
           @defr {:add, 2}
           def add(a, b) do
-            require Witchcraft.Monad
+            use Witchcraft.Monad
 
-            Witchcraft.Monad.monad %Algae.Reader{} do
+            monad %Algae.Reader{} do
               deps <- Algae.Reader.ask()
 
               return(
@@ -208,9 +208,9 @@ defmodule Defr.InjectTest do
         quote do
           @defr {:add, 2}
           def add(a, b) do
-            require Witchcraft.Monad
+            use Witchcraft.Monad
 
-            Witchcraft.Monad.monad %Algae.Reader{} do
+            monad %Algae.Reader{} do
               deps <- Algae.Reader.ask()
 
               return(
