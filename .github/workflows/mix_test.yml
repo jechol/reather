@@ -15,33 +15,19 @@ on:
 jobs:
   # Refactoring duplicated yaml is currently not possible
   # because Github does not support anchor syntax (& and *) now.
-  elixir_1_12:
+  mix_test:
     runs-on: ubuntu-latest
-    name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
-    strategy:
-      matrix:
-        elixir: [1.12.0]
-        otp: [24.0]
+    name: mix test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
+      - uses: cachix/install-nix-action@v13
+      - uses: cachix/cachix-action@v10
         with:
-          elixir-version: ${{matrix.elixir}}
-          otp-version: ${{matrix.otp}}
-      - run: mix deps.get
-      - run: mix test
-  elixir_1_11:
-    runs-on: ubuntu-latest
-    name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
-    strategy:
-      matrix:
-        elixir: [1.11.0]
-        otp: [23.0]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
-        with:
-          elixir-version: ${{matrix.elixir}}
-          otp-version: ${{matrix.otp}}
+          name: jechol
+      - name: Install languages
+        run: |
+          nix-env -i -f shell.nix -A buildInputs &&
+          mix local.rebar --force &&
+          mix local.hex --force
       - run: mix deps.get
       - run: mix test
