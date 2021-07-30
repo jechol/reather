@@ -1,8 +1,8 @@
-![](https://github.com/jechol/defre/blob/master/brand/logo.png?raw=true)
+![](https://github.com/trevorite/defre/blob/master/brand/logo.png?raw=true)
 
-[![mix test](https://github.com/jechol/defre/workflows/mix%20test/badge.svg)](https://github.com/jechol/defre/actions)
+[![mix test](https://github.com/trevorite/defre/workflows/mix%20test/badge.svg)](https://github.com/trevorite/defre/actions)
 [![Hex version badge](https://img.shields.io/hexpm/v/defre.svg)](https://hex.pm/packages/defre)
-[![License badge](https://img.shields.io/hexpm/l/defre.svg)](https://github.com/jechol/defre/blob/master/LICENSE.md)
+[![License badge](https://img.shields.io/hexpm/l/defre.svg)](https://github.com/trevorite/defre/blob/master/LICENSE.md)
 
 Unobtrusive Dependency Injector for Elixir
 

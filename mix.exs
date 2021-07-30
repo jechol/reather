@@ -13,7 +13,7 @@ defmodule Defre.MixProject do
       deps: deps(),
       package: package(),
       description: "Unobtrusive Dependency Injector for Elixir",
-      source_url: "https://github.com/jechol/defre",
+      source_url: "https://github.com/trevorite/defre",
       docs: docs()
     ]
   end
@@ -38,7 +38,7 @@ defmodule Defre.MixProject do
 
       {:quark, git: "https://github.com/witchcrafters/quark.git", override: true},
       {:type_class, git: "https://github.com/witchcrafters/type_class.git", override: true},
-      {:witchcraft, git: "https://github.com/jechol/witchcraft.git", override: true},
+      {:witchcraft, git: "https://github.com/trevorite/witchcraft.git", override: true},
       {:algae, git: "https://github.com/witchcrafters/algae.git"}
     ]
   end
@@ -46,8 +46,8 @@ defmodule Defre.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/jechol/defre"},
-      maintainers: ["Jechol Lee(mr.jechol@gmail.com)"]
+      links: %{"GitHub" => "https://github.com/trevorite/defre"},
+      maintainers: ["Jechol Lee(mr.trevorite@gmail.com)"]
     ]
   end
 
@@ -56,7 +56,7 @@ defmodule Defre.MixProject do
       main: "readme",
       name: "defre",
       canonical: "http://hexdocs.pm/defre",
-      source_url: "https://github.com/jechol/defre",
+      source_url: "https://github.com/trevorite/defre",
       extras: [
         "README.md"
       ]

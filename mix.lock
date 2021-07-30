@@ -10,5 +10,5 @@
   "operator": {:hex, :operator, "0.2.1", "4572312bbd3e63a5c237bf15c3a7670d568e3651ea744289130780006e70e5f5", [:mix], [], "hexpm", "1990cc6dc651d7fff04636eef06fc64e6bc1da83a1da890c08ca3432e17e267a"},
   "quark": {:git, "https://github.com/witchcrafters/quark.git", "b05a8a0dc70715522303a7d0eac6f8debcc75c42", []},
   "type_class": {:git, "https://github.com/witchcrafters/type_class.git", "442bbfbac336231351feecb83ec7bc9ccbe07a57", []},
-  "witchcraft": {:git, "https://github.com/jechol/witchcraft.git", "e7dab049be1d222a3e56184dfefc8bf1b5a60007", []},
+  "witchcraft": {:git, "https://github.com/trevorite/witchcraft.git", "e7dab049be1d222a3e56184dfefc8bf1b5a60007", []},
 }
