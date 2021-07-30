@@ -4,6 +4,8 @@ defmodule Defre.InjectTest do
   alias Defre.Inject
   alias Defre.AST
 
+  @config %{mode: {:reader, :either}, reader_modules: []}
+
   describe "inject_ast_recursively" do
     test "capture is not expanded" do
       blk =
@@ -11,7 +13,7 @@ defmodule Defre.InjectTest do
           &Calc.sum/2
         end
 
-      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__, @config)
       assert_inject(actual, {blk, [], []})
     end
 
@@ -21,7 +23,7 @@ defmodule Defre.InjectTest do
           conn.assigns
         end
 
-      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__, @config)
       assert_inject(actual, {blk, [], []})
     end
 
@@ -32,7 +34,7 @@ defmodule Defre.InjectTest do
           Kernel.+(100, 200)
         end
 
-      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__, @config)
       assert_inject(actual, {blk, [], []})
     end
 
@@ -67,7 +69,7 @@ defmodule Defre.InjectTest do
           end
         end
 
-      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__, @config)
       assert_inject(actual, {exp_ast, [&Math.pow/2], [Math]})
     end
 
@@ -79,7 +81,7 @@ defmodule Defre.InjectTest do
           sum(a, b)
         end
 
-      {:error, :modifier} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:error, :modifier} = Inject.inject_ast_recursively(blk, __ENV__, @config)
     end
 
     test "operator case 1" do
@@ -102,7 +104,7 @@ defmodule Defre.InjectTest do
             end
         end
 
-      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__, @config)
       assert_inject(actual, {exp_ast, [&Calc.to_int/1, &Calc.to_int/1], [Calc, Calc]})
     end
 
@@ -128,7 +130,7 @@ defmodule Defre.InjectTest do
             end
         end
 
-      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__, @config)
       assert_inject(actual, {exp_ast, [&Calc.to_int/1, &Calc.to_int/1], [Calc, Calc]})
     end
 
@@ -166,7 +168,7 @@ defmodule Defre.InjectTest do
           end
         end
 
-      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+      {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__, @config)
 
       assert_inject(
         actual,
@@ -189,37 +191,29 @@ defmodule Defre.InjectTest do
 
       expected =
         quote do
-          (
-            Module.register_attribute(__MODULE__, :definjected, accumulate: true)
+          def add(a, b) do
+            Witchcraft.Monad.monad %Reader{} do
+              deps <- Algae.Reader.ask()
 
-            unless {:add, 2} in Module.get_attribute(__MODULE__, :definjected) do
-              def add(a, b, deps \\ %{})
-              @definjected {:add, 2}
-            end
-          )
+              Witchcraft.Monad.monad %Right{} do
+                case a do
+                  false ->
+                    Map.get(
+                      deps,
+                      &Calc.sum/2,
+                      :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
+                    ).(a, b)
 
-          def add(a, b, %{} = deps) do
-            Defre.Check.validate_deps(
-              deps,
-              {[&Calc.sum/2], [Calc]},
-              {Defre.InjectTest, :add, 2}
-            )
-
-            case a do
-              false ->
-                Map.get(deps, &Calc.sum/2, :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)).(
-                  a,
-                  b
-                )
-
-              true ->
-                import Calc
-                sum(a, b)
+                  true ->
+                    import Calc
+                    sum(a, b)
+                end
+              end
             end
           end
         end
 
-      actual = Inject.inject_function(head, [do: blk], env_with_macros())
+      actual = Inject.inject_function(head, [do: blk], env_with_macros(), @config)
       assert Macro.to_string(actual) == Macro.to_string(expected)
     end
 

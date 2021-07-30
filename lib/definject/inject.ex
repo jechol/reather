@@ -66,11 +66,11 @@ defmodule Defre.Inject do
                Witchcraft.Monad.monad %Reader{} do
                  deps <- Algae.Reader.ask()
 
-                 Defre.Check.validate_deps(
-                   deps,
-                   {unquote(captures), unquote(mods)},
-                   unquote(Macro.escape({mod, name, arity}))
-                 )
+                 #  Defre.Check.validate_deps(
+                 #    deps,
+                 #    {unquote(captures), unquote(mods)},
+                 #    unquote(Macro.escape({mod, name, arity}))
+                 #  )
 
                  Witchcraft.Monad.monad %Right{} do
                    unquote(injected_blk)
@@ -85,9 +85,9 @@ defmodule Defre.Inject do
       end)
 
     quote do
-      unquote(injected_head)
+      # unquote(injected_head)
 
-      def unquote(call_for_clause), unquote(injected_body)
+      def unquote(head), unquote(injected_body)
     end
   end
 
