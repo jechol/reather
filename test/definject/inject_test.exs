@@ -194,11 +194,11 @@ defmodule Defre.InjectTest do
           def add(a, b) do
             require Witchcraft.Monad
 
-            Witchcraft.Monad.monad %Reader{} do
+            Witchcraft.Monad.monad %Algae.Reader{} do
               deps <- Algae.Reader.ask()
 
               return(
-                Witchcraft.Monad.monad %Right{} do
+                Witchcraft.Monad.monad %Algae.Either.Right{} do
                   case a do
                     false ->
                       Map.get(
@@ -237,11 +237,11 @@ defmodule Defre.InjectTest do
           def add(a, b) do
             require Witchcraft.Monad
 
-            Witchcraft.Monad.monad %Reader{} do
+            Witchcraft.Monad.monad %Algae.Reader{} do
               deps <- Algae.Reader.ask()
 
               return(
-                Witchcraft.Monad.monad %Right{} do
+                Witchcraft.Monad.monad %Algae.Either.Right{} do
                   case a do
                     false ->
                       Map.get(

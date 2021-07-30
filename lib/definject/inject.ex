@@ -37,7 +37,7 @@ defmodule Defre.Inject do
              quote do
                require Witchcraft.Monad
 
-               Witchcraft.Monad.monad %Reader{} do
+               Witchcraft.Monad.monad %Algae.Reader{} do
                  deps <- Algae.Reader.ask()
 
                  #  Defre.Check.validate_deps(
@@ -47,7 +47,7 @@ defmodule Defre.Inject do
                  #  )
 
                  return(
-                   Witchcraft.Monad.monad %Right{} do
+                   Witchcraft.Monad.monad %Algae.Either.Right{} do
                      unquote(injected_blk)
                    end
                  )
