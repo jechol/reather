@@ -178,7 +178,7 @@ defmodule Defre.InjectTest do
   end
 
   describe "inject_function" do
-    test "success case" do
+    test "success case for non-reader" do
       {:defre, _, [head, [do: blk]]} =
         quote do
           defre add(a, b) do
@@ -214,6 +214,51 @@ defmodule Defre.InjectTest do
         end
 
       actual = Inject.inject_function(head, [do: blk], env_with_macros(), @config)
+      assert Macro.to_string(actual) == Macro.to_string(expected)
+    end
+
+    test "success case for reader" do
+      {:defre, _, [head, [do: blk]]} =
+        quote do
+          defre add(a, b) do
+            case a do
+              false -> Calc.sum(a, b)
+              true -> Calc.macro_sum(a, b)
+            end
+          end
+        end
+
+      expected =
+        quote do
+          def add(a, b) do
+            Witchcraft.Monad.monad %Reader{} do
+              deps <- Algae.Reader.ask()
+
+              Witchcraft.Monad.monad %Right{} do
+                case a do
+                  false ->
+                    Map.get(
+                      deps,
+                      &Calc.sum/2,
+                      :erlang.make_fun(Map.get(deps, Calc, Calc), :sum, 2)
+                    ).(a, b)
+                    |> Algae.Reader.run(deps)
+
+                  true ->
+                    import Calc
+                    sum(a, b)
+                end
+              end
+            end
+          end
+        end
+
+      actual =
+        Inject.inject_function(head, [do: blk], env_with_macros(), %{
+          @config
+          | reader_modules: [Calc]
+        })
+
       assert Macro.to_string(actual) == Macro.to_string(expected)
     end
 
