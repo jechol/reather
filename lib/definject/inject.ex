@@ -27,14 +27,10 @@ defmodule Defre.Inject do
   def inject_function(
         head,
         body,
-        %Macro.Env{module: mod, file: file, line: line} = env,
+        %Macro.Env{module: _mod, file: file, line: line} = env,
         %{mode: {:reader, :either}, reader_modules: _reader_modules} = config
       )
       when is_list(body) do
-    call_for_clause = call_for_clause(head)
-    {name, arity} = get_fa(head)
-    injected_head = inject_head(head)
-
     inject_results =
       body
       |> Enum.map(fn {key, blk} ->
@@ -48,12 +44,6 @@ defmodule Defre.Inject do
               line: line,
               description: "Cannot import/require/use inside defre. Move it to module level."
         end
-      end)
-
-    {captures, mods} =
-      inject_results
-      |> Enum.reduce({[], []}, fn {_, {_, captures, mods}}, {capture_acc, mod_acc} ->
-        {capture_acc ++ captures, mod_acc ++ mods}
       end)
 
     injected_body =
