@@ -87,9 +87,9 @@ defmodule Defr.InjectTest do
 
       exp_ast =
         quote do
-          Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(a) >>>
+          Defr.Runner.run({Calc, :to_int, 1}, [a], deps) >>>
             fn a_int ->
-              Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(b) >>> fn b_int -> a_int + b_int end
+              Defr.Runner.run({Calc, :to_int, 1}, [b], deps) >>> fn b_int -> a_int + b_int end
             end
         end
 
@@ -105,9 +105,9 @@ defmodule Defr.InjectTest do
 
       exp_ast =
         quote do
-          Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(a) >>>
+          Defr.Runner.run({Calc, :to_int, 1}, [a], deps) >>>
             fn a_int ->
-              (fn b_int -> a_int + b_int end).(Map.get(deps, &Calc.to_int/1, &Calc.to_int/1).(b))
+              (fn b_int -> a_int + b_int end).(Defr.Runner.run({Calc, :to_int, 1}, [b], deps))
             end
         end
 
@@ -132,16 +132,16 @@ defmodule Defr.InjectTest do
       exp_ast =
         quote do
           try do
-            Map.get(deps, &Calc.id/1, &Calc.id/1).(:try)
+            Defr.Runner.run({Calc, :id, 1}, [:try], deps)
           rescue
             e in ArithmeticError ->
-              Map.get(deps, &Calc.id/1, &Calc.id/1).(e)
+              Defr.Runner.run({Calc, :id, 1}, [e], deps)
           catch
             :error, number ->
-              Map.get(deps, &Calc.id/1, &Calc.id/1).(number)
+              Defr.Runner.run({Calc, :id, 1}, [number], deps)
           else
             x ->
-              Map.get(deps, &Calc.id/1, &Calc.id/1).(:else)
+              Defr.Runner.run({Calc, :id, 1}, [:else], deps)
           end
         end
 
@@ -168,6 +168,14 @@ defmodule Defr.InjectTest do
 
       expected =
         quote do
+          (
+            Module.register_attribute(__MODULE__, :defr, accumulate: true)
+
+            unless {:add, 2} in Module.get_attribute(__MODULE__, :defr) do
+              @defr {:add, 2}
+            end
+          )
+
           def add(a, b) do
             require Witchcraft.Monad
 
@@ -175,15 +183,13 @@ defmodule Defr.InjectTest do
               deps <- Algae.Reader.ask()
 
               return(
-                Witchcraft.Monad.monad %Algae.Either.Right{} do
-                  case a do
-                    false ->
-                      Map.get(deps, &Calc.sum/2, &Calc.sum/2).(a, b)
+                case a do
+                  false ->
+                    Defr.Runner.run({Calc, :sum, 2}, [a, b], deps)
 
-                    true ->
-                      import Calc
-                      sum(a, b)
-                  end
+                  true ->
+                    import Calc
+                    sum(a, b)
                 end
               )
             end
@@ -207,6 +213,14 @@ defmodule Defr.InjectTest do
 
       expected =
         quote do
+          (
+            Module.register_attribute(__MODULE__, :defr, accumulate: true)
+
+            unless {:add, 2} in Module.get_attribute(__MODULE__, :defr) do
+              @defr {:add, 2}
+            end
+          )
+
           def add(a, b) do
             require Witchcraft.Monad
 
@@ -214,15 +228,13 @@ defmodule Defr.InjectTest do
               deps <- Algae.Reader.ask()
 
               return(
-                Witchcraft.Monad.monad %Algae.Either.Right{} do
-                  case a do
-                    false ->
-                      Map.get(deps, &Calc.sum/2, &Calc.sum/2).(a, b) |> Algae.Reader.run(deps)
+                case a do
+                  false ->
+                    Defr.Runner.run({Calc, :sum, 2}, [a, b], deps)
 
-                    true ->
-                      import Calc
-                      sum(a, b)
-                  end
+                  true ->
+                    import Calc
+                    sum(a, b)
                 end
               )
             end

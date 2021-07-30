@@ -178,23 +178,7 @@ defmodule Defr.Inject do
 
       injected_call =
         quote do
-          ret =
-            Map.get(
-              deps,
-              unquote(capture),
-              unquote(capture)
-              # :erlang.make_fun(
-              #   Map.get(deps, unquote(mod), unquote(mod)),
-              #   unquote(name),
-              #   unquote(arity)
-              # )
-            ).(unquote_splicing(args))
-
-          if {unquote(name), unquote(arity)} in unquote(mod).__defr__() do
-            ret |> Algae.Reader.run(deps)
-          else
-            ret
-          end
+          Defr.Runner.run({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
         end
 
       # reader_call =
