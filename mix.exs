@@ -7,12 +7,12 @@ defmodule Defr.MixProject do
     [
       app: :defr,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       package: package(),
-      description: "Unobtrusive Dependency Injector for Elixir",
+      description: "Helper for Witchcraft's Reader monad",
       source_url: "https://github.com/trevorite/defr",
       docs: docs()
     ]
