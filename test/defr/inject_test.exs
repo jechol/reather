@@ -150,7 +150,7 @@ defmodule Defr.InjectTest do
   end
 
   describe "inject_function" do
-    test "success case for non-reader" do
+    test "success case for public" do
       {:defr, _, [head, [do: blk]]} =
         quote do
           defr add(a, b) do
@@ -184,14 +184,14 @@ defmodule Defr.InjectTest do
           end
         end
 
-      actual = Inject.inject_function(head, [do: blk], env_with_macros())
+      actual = Inject.inject_function(:def, head, [do: blk], env_with_macros())
       assert_inject(actual, expected)
     end
 
-    test "success case for reader" do
-      {:defr, _, [head, [do: blk]]} =
+    test "success case for private" do
+      {:defrp, _, [head, [do: blk]]} =
         quote do
-          defr add(a, b) do
+          defrp add(a, b) do
             case a do
               false -> Calc.sum(a, b)
               true -> Calc.macro_sum(a, b)
@@ -201,8 +201,7 @@ defmodule Defr.InjectTest do
 
       expected =
         quote do
-          @defr_funs {:add, 2}
-          def add(a, b) do
+          defp add(a, b) do
             use Witchcraft.Monad
 
             monad %Algae.Reader{} do
@@ -222,7 +221,7 @@ defmodule Defr.InjectTest do
           end
         end
 
-      actual = Inject.inject_function(head, [do: blk], env_with_macros())
+      actual = Inject.inject_function(:defp, head, [do: blk], env_with_macros())
       assert_inject(actual, expected)
     end
 
