@@ -52,5 +52,14 @@ defmodule Defr.NestedCallTest do
                  Reader.new(fn _ -> Right.new(%User{id: 2, name: "chrismccord"}) end)
                end
              })
+
+    # with `mock` macro
+    assert %Right{right: %User{id: 2, name: "chrismccord"}} ==
+             UserController.profile("2")
+             |> Reader.run(
+               mock(%{
+                 &User.get_by_id/1 => Right.new(%User{id: 2, name: "chrismccord"})
+               })
+             )
   end
 end
