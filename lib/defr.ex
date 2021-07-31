@@ -63,15 +63,16 @@ defmodule Defr do
   """
 
   defmacro defr(head, body) do
+    do_defr(:def, head, body, __CALLER__)
+  end
+
+  defp do_defr(def_type, head, body, env) do
     alias Defr.Inject
 
-    original =
-      quote do
-        def unquote(head), unquote(body)
-      end
+    original = {def_type, [context: Elixir, import: Kernel], [head, body]}
 
-    Inject.inject_function(head, body, __CALLER__)
-    |> trace(original, __CALLER__)
+    Inject.inject_function(def_type, head, body, env)
+    |> trace(original, env)
   end
 
   defp trace(injected, original, %Macro.Env{file: file, line: line}) do
