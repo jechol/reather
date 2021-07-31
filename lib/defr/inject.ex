@@ -19,10 +19,10 @@ defmodule Defr.Inject do
     inject_results =
       body
       |> Enum.map(fn
-        {key = :do, blk} ->
+        {:do, blk} ->
           case blk |> inject_ast_recursively(env) do
-            {:ok, {_, _, _} = value} ->
-              {key, value}
+            {:ok, injected_blk} ->
+              {:do, injected_blk}
 
             {:error, :modifier} ->
               raise CompileError,
@@ -32,13 +32,13 @@ defmodule Defr.Inject do
           end
 
         {key, blk} ->
-          {key, {blk, [], []}}
+          {key, blk}
       end)
 
     injected_body =
       inject_results
       |> Enum.reduce([], fn
-        {:do, {injected_blk, _, _}}, acc ->
+        {:do, injected_blk}, acc ->
           do_blk =
             {:do,
              quote do
@@ -53,7 +53,7 @@ defmodule Defr.Inject do
 
           acc ++ [do_blk]
 
-        {key, {blk, _, _}}, acc ->
+        {key, blk}, acc ->
           acc ++ [{key, blk}]
       end)
 
@@ -79,13 +79,13 @@ defmodule Defr.Inject do
 
   def inject_ast_recursively(blk, env) do
     with {:ok, ^blk} <- blk |> check_no_modifier_recursively() do
-      {injected_blk, {captures, mods}} =
+      injected_blk =
         blk
         |> expand_recursively!(env)
         |> mark_remote_call_recursively!()
-        |> inject_recursively!()
+        |> Macro.postwalk(&inject/1)
 
-      {:ok, {injected_blk, captures, mods}}
+      {:ok, injected_blk}
     end
   end
 
@@ -148,36 +148,24 @@ defmodule Defr.Inject do
     ast
   end
 
-  defp inject_recursively!(ast) do
-    ast
-    |> Macro.postwalk({[], []}, fn ast, {captures, mods} ->
-      {injected_ast, new_caputres, new_mods} = inject(ast)
-      {injected_ast, {new_caputres ++ captures, new_mods ++ mods}}
-    end)
-  end
-
   defp inject({_func, [{:skip_inject, true} | _], _args} = ast) do
-    {ast, [], []}
+    ast
   end
 
   defp inject({{:., _dot_ctx, [mod, name]}, _call_ctx, args} = ast)
        when is_atom(name) and is_list(args) do
     if AST.is_module_ast(mod) and AST.unquote_module_ast(mod) not in @uninjectable do
       arity = Enum.count(args)
-      capture = AST.quote_function_capture({mod, name, arity})
 
-      injected_call =
-        quote do
-          Defr.Runner.run({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
-        end
-
-      {injected_call, [capture], [mod]}
+      quote do
+        Defr.Runner.run({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
+      end
     else
-      {ast, [], []}
+      ast
     end
   end
 
   defp inject(ast) do
-    {ast, [], []}
+    ast
   end
 end

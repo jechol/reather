@@ -2,7 +2,6 @@ defmodule Defr.InjectTest do
   use ExUnit.Case, async: true
   require Defr.Inject
   alias Defr.Inject
-  alias Defr.AST
 
   describe "inject_ast_recursively" do
     test "capture is not expanded" do
@@ -12,7 +11,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, {blk, [], []})
+      assert_inject(actual, blk)
     end
 
     test "access is not expanded" do
@@ -22,7 +21,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, {blk, [], []})
+      assert_inject(actual, blk)
     end
 
     test ":erlang is not expanded" do
@@ -33,7 +32,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, {blk, [], []})
+      assert_inject(actual, blk)
     end
 
     test "indirect import is allowed" do
@@ -65,7 +64,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, {exp_ast, [&Math.pow/2], [Math]})
+      assert_inject(actual, exp_ast)
     end
 
     test "direct import is not allowed" do
@@ -94,7 +93,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, {exp_ast, [&Calc.to_int/1, &Calc.to_int/1], [Calc, Calc]})
+      assert_inject(actual, exp_ast)
     end
 
     test "operator case 2" do
@@ -112,7 +111,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, {exp_ast, [&Calc.to_int/1, &Calc.to_int/1], [Calc, Calc]})
+      assert_inject(actual, exp_ast)
     end
 
     test "try case 1" do
@@ -146,11 +145,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-
-      assert_inject(
-        actual,
-        {exp_ast, [&Calc.id/1, &Calc.id/1, &Calc.id/1, &Calc.id/1], [Calc, Calc, Calc, Calc]}
-      )
+      assert_inject(actual, exp_ast)
     end
   end
 
@@ -190,7 +185,7 @@ defmodule Defr.InjectTest do
         end
 
       actual = Inject.inject_function(head, [do: blk], env_with_macros())
-      assert Macro.to_string(actual) == Macro.to_string(expected)
+      assert_inject(actual, expected)
     end
 
     test "success case for reader" do
@@ -228,8 +223,7 @@ defmodule Defr.InjectTest do
         end
 
       actual = Inject.inject_function(head, [do: blk], env_with_macros())
-
-      assert Macro.to_string(actual) == Macro.to_string(expected)
+      assert_inject(actual, expected)
     end
 
     test "Compile error case" do
@@ -246,9 +240,7 @@ defmodule Defr.InjectTest do
     __ENV__
   end
 
-  defp assert_inject({ast, captures_ast, mods}, {exp_ast, exp_captures, exp_mods}) do
+  defp assert_inject(ast, exp_ast) do
     assert Macro.to_string(ast) == Macro.to_string(exp_ast)
-    assert captures_ast |> Enum.map(&AST.unquote_function_capture/1) == exp_captures
-    assert mods == exp_mods
   end
 end
