@@ -234,8 +234,7 @@ defmodule Defr.InjectTest do
 
     test "Compile error case" do
       assert_raise CompileError, ~r(import/require/use), fn ->
-        :code.priv_dir(:defr)
-        |> Path.join("import_in_inject.ex")
+        Path.expand("../support/import_in_inject.exs", __DIR__)
         |> Code.eval_file()
       end
     end
