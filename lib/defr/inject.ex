@@ -8,8 +8,8 @@ defmodule Defr.Inject do
 
   defmacro __before_compile__(_env) do
     quote do
-      def __reader_funs__ do
-        @defr
+      def __defr_funs__ do
+        @defr_funs
       end
     end
   end
@@ -60,7 +60,7 @@ defmodule Defr.Inject do
     fa = get_fa(head)
 
     quote do
-      @defr unquote(fa)
+      @defr_funs unquote(fa)
       def unquote(head), unquote(injected_body)
     end
   end

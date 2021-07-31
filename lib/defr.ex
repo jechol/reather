@@ -4,7 +4,7 @@ defmodule Defr do
       import Defr, only: :macros
       use Witchcraft.Monad
 
-      Module.register_attribute(__MODULE__, :defr, accumulate: true)
+      Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
       @before_compile unquote(Defr.Inject)
     end
   end

@@ -168,7 +168,7 @@ defmodule Defr.InjectTest do
 
       expected =
         quote do
-          @defr {:add, 2}
+          @defr_funs {:add, 2}
           def add(a, b) do
             use Witchcraft.Monad
 
@@ -206,7 +206,7 @@ defmodule Defr.InjectTest do
 
       expected =
         quote do
-          @defr {:add, 2}
+          @defr_funs {:add, 2}
           def add(a, b) do
             use Witchcraft.Monad
 
