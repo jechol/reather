@@ -3,14 +3,12 @@ defmodule Defr.Inject.InjectFunctionTest do
   require Defr.Inject
   alias Defr.Inject
 
-  test "success case for public" do
+  test "defr" do
     {:defr, _, [head, body]} =
       quote do
         defr add(a, b) do
-          case a do
-            false -> Calc.sum(a, b)
-            true -> Calc.macro_sum(a, b)
-          end
+          Calc.sum(a, b)
+          Calc.macro_sum(a, b)
         end
       end
 
@@ -24,14 +22,14 @@ defmodule Defr.Inject.InjectFunctionTest do
             deps <- Algae.Reader.ask()
 
             return(
-              case a do
-                false ->
-                  Defr.Runner.run({Calc, :sum, 2}, [a, b], deps)
+              (
+                Defr.Runner.run({Calc, :sum, 2}, [a, b], deps)
 
-                true ->
+                (
                   import Calc
                   sum(a, b)
-              end
+                )
+              )
             )
           end
         end
