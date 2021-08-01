@@ -1,6 +1,5 @@
 defmodule Defr.Inject.InjectAstRecursivelyTest do
   use ExUnit.Case, async: true
-  import AstAssertions
   require Defr.Inject
   alias Defr.Inject
 
@@ -10,8 +9,8 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         &Calc.sum/2
       end
 
-    {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-    assert_ast blk == actual
+    assert {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert Macro.to_string(blk) == Macro.to_string(actual)
   end
 
   test "access is not expanded" do
@@ -20,8 +19,8 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         conn.assigns
       end
 
-    {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-    assert_ast blk == actual
+    assert {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert Macro.to_string(blk) == Macro.to_string(actual)
   end
 
   test ":erlang is not expanded" do
@@ -31,8 +30,8 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         Kernel.+(100, 200)
       end
 
-    {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-    assert_ast blk == actual
+    assert {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert Macro.to_string(blk) == Macro.to_string(actual)
   end
 
   test "indirect import is allowed" do
@@ -48,7 +47,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         end
       end
 
-    exp_ast =
+    expected =
       quote do
         &Calc.sum/2
 
@@ -63,8 +62,8 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         end
       end
 
-    {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-    assert_inject(actual, exp_ast)
+    assert {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert Macro.to_string(expected) == Macro.to_string(actual)
   end
 
   test "direct import is not allowed" do
@@ -75,7 +74,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         sum(a, b)
       end
 
-    {:error, :modifier} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert {:error, :modifier} = Inject.inject_ast_recursively(blk, __ENV__)
   end
 
   test "operator case 1" do
@@ -84,7 +83,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         Calc.to_int(a) >>> fn a_int -> Calc.to_int(b) >>> fn b_int -> a_int + b_int end end
       end
 
-    exp_ast =
+    expected =
       quote do
         Defr.Runner.run({Calc, :to_int, 1}, [a], deps) >>>
           fn a_int ->
@@ -92,8 +91,8 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
           end
       end
 
-    {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-    assert_inject(actual, exp_ast)
+    assert {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert Macro.to_string(expected) == Macro.to_string(actual)
   end
 
   test "operator case 2" do
@@ -102,7 +101,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         Calc.to_int(a) >>> fn a_int -> (fn b_int -> a_int + b_int end).(Calc.to_int(b)) end
       end
 
-    exp_ast =
+    expected =
       quote do
         Defr.Runner.run({Calc, :to_int, 1}, [a], deps) >>>
           fn a_int ->
@@ -110,8 +109,8 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
           end
       end
 
-    {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-    assert_inject(actual, exp_ast)
+    assert {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert Macro.to_string(expected) == Macro.to_string(actual)
   end
 
   test "try case 1" do
@@ -128,7 +127,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         end
       end
 
-    exp_ast =
+    expected =
       quote do
         try do
           Defr.Runner.run({Calc, :id, 1}, [:try], deps)
@@ -144,11 +143,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         end
       end
 
-    {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-    assert_inject(actual, exp_ast)
-  end
-
-  defp assert_inject(ast, exp_ast) do
-    assert Macro.to_string(ast) == Macro.to_string(exp_ast)
+    assert {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
+    assert Macro.to_string(expected) == Macro.to_string(actual)
   end
 end
