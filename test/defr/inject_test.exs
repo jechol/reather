@@ -1,5 +1,6 @@
 defmodule Defr.InjectTest do
   use ExUnit.Case, async: true
+  import AstAssertions
   require Defr.Inject
   alias Defr.Inject
 
@@ -11,7 +12,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, blk)
+      assert_ast blk == actual
     end
 
     test "access is not expanded" do
@@ -21,7 +22,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, blk)
+      assert_ast blk == actual
     end
 
     test ":erlang is not expanded" do
@@ -32,7 +33,7 @@ defmodule Defr.InjectTest do
         end
 
       {:ok, actual} = Inject.inject_ast_recursively(blk, __ENV__)
-      assert_inject(actual, blk)
+      assert_ast blk == actual
     end
 
     test "indirect import is allowed" do
