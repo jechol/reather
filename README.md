@@ -91,9 +91,9 @@ defmodule Accounts do
 end
 ```
 
-# Test
+## Test
 
-## Injection normal function
+### Injection normal function
 
 ```elixir
 test "Injecting normal function" do
@@ -114,7 +114,7 @@ test "Injecting normal function" do
 end
 ```
 
-## Injection reader function
+### Injection reader function
 
 ```elixir
 test "Injecting reader function" do
