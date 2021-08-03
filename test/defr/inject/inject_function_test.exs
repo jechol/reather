@@ -48,6 +48,7 @@ defmodule Defr.Inject.InjectFunctionTest do
 
   defp env_with_macros do
     import Calc
+    dummy()
     __ENV__
   end
 end

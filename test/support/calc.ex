@@ -11,4 +11,7 @@ defmodule Calc do
       sum(unquote(a), unquote(b))
     end
   end
+
+  def dummy() do
+  end
 end
