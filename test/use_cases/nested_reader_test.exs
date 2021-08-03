@@ -1,4 +1,4 @@
-defmodule Defr.NestedCallTest do
+defmodule Defr.NestedReaderTest do
   use ExUnit.Case, async: true
   use Defr
   alias Algae.Reader
@@ -34,14 +34,12 @@ defmodule Defr.NestedCallTest do
     end
   end
 
-  test "Accounts.sign_in" do
+  test "Injecting normal function" do
     assert true ==
-             Accounts.sign_in(100, "hello")
+             Accounts.sign_in(100, "Ju8AufbPr*")
              |> Reader.run(%{
                &Repo.get/2 => fn _schema, _user_id ->
-                 Reader.new(fn _env ->
-                   %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "hello")}
-                 end)
+                 %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "Ju8AufbPr*")}
                end
              })
 
@@ -49,6 +47,27 @@ defmodule Defr.NestedCallTest do
              Accounts.sign_in(100, "hello")
              |> Reader.run(
                mock(%{&Repo.get/2 => %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "hello")}})
+             )
+  end
+
+  test "Injecting reader function" do
+    assert true ==
+             Accounts.sign_in(100, "Ju8AufbPr*")
+             |> Reader.run(%{
+               &User.get_by_id/1 => fn _user_id ->
+                 Reader.new(fn _env ->
+                   %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "Ju8AufbPr*")}
+                 end)
+               end
+             })
+
+    # simpilfied with `mock`
+    assert true ==
+             Accounts.sign_in(100, "hello")
+             |> Reader.run(
+               mock(%{
+                 &User.get_by_id/1 => %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "hello")}
+               })
              )
   end
 end
