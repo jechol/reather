@@ -108,7 +108,13 @@ defmodule DefrTest do
     end
   end
 
-  test "mock" do
+  defmodule MockSubject do
+    use Defr
+
+    defr sum(a, b), do: a + b
+  end
+
+  test "mock for non reader" do
     m = mock(%{&Enum.count/1 => (fn -> 100 end).(), &Enum.map/2 => 200})
 
     f1 = m[&Enum.count/1]
@@ -119,5 +125,16 @@ defmodule DefrTest do
 
     assert f1.(nil) == 100
     assert f2.(nil, nil) == 200
+  end
+
+  test "mock for reader" do
+    m = mock(%{&MockSubject.sum/2 => 99})
+
+    f_sum = m[&MockSubject.sum/2]
+
+    assert :erlang.fun_info(f_sum)[:arity] == 2
+
+    assert %Reader{} = f_sum.(10, 20)
+    assert 99 == f_sum.(10, 20) |> Reader.run(%{})
   end
 end

@@ -21,64 +21,95 @@ To format `defr` like `def`, add following to your `.formatter.exs`
 locals_without_parens: [defr: 2]
 ```
 
-## Usage
+## `defr` transformation
 
 ```elixir
-defmodule Defr.NestedCallTest do
-  use ExUnit.Case, async: true
+defmodule Password do
+  def validate(pw, pw_hash) do
+    :crypto.hash(:sha3_256, pw) == pw_hash
+  end
+end
+
+defmodule User do
   use Defr
-  alias Algae.Reader
-  alias Algae.Either.Right
 
-  defmodule User do
-    use Defr
+  defstruct [:id, :pw_hash]
 
-    defstruct [:id, :name]
+  defr get_by_id(user_id) do
+    Repo.get(__MODULE__, user_id)
+  end
+end
 
-    defr get_by_id(user_id) do
-      Repo.get(__MODULE__, user_id) |> Right.new()
+defmodule Accounts do
+  use Defr
+
+  defr sign_in(user_id, pw) do
+    user = User.get_by_id(user_id)
+    Password.validate(pw, user.pw_hash)
+  end
+end
+```
+
+becomes
+
+```elixir
+defmodule Password do
+  def validate(pw, pw_hash) do
+    :crypto.hash(:sha3_256, pw) == pw_hash
+  end
+end
+
+defmodule User do
+  use Defr
+
+  defstruct [:id, :pw_hash]
+
+  def get_by_id(user_id) do
+    monad %Reader{} do
+      deps <- ask()
+      return (
+        Map.get(deps, &Repo.get/2, &Repo.get/2).(__MODULE__, user_id)
+      )
     end
   end
+end
 
-  defmodule Accounts do
-    use Defr
+defmodule Accounts do
+  use Defr
 
-    defr get_user_by_id(user_id) do
-      monad %Right{} do
-        user <- User.get_by_id(user_id)
-        user |> Right.new()
-      end
+  def sign_in(user_id, pw) do
+    monad %Reader{} do
+      deps <- ask()
+      return (
+        (
+          user = Map.get(deps, &User.get_by_id/1, &User.get_by_id/1).(user_id) |> Reader.run(deps)
+          Password.validate(pw, user.pw_hash)
+        )
+      )
     end
   end
+end
+```
 
-  defmodule UserController do
-    use Defr
+# Test with mock
 
-    defr profile(user_id_str) do
-      user_id = String.to_integer(user_id_str)
-      Accounts.get_user_by_id(user_id)
-    end
-  end
+```elixir
+test "Accounts.sign_in" do
+  assert true ==
+          Accounts.sign_in(100, "Ju8AufbPr*")
+          |> Reader.run(
+            mock(%{&Repo.get/2 => %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "Ju8AufbPr*")}})
+          )
+end
+```
 
-  test "inject 3rd layer" do
-    assert [{:profile, 1}] == UserController.__defr_funs__()
-
-    assert %Right{right: %User{id: 1, name: "josevalim"}} ==
-             UserController.profile("1")
-             |> Reader.run(%{&Repo.get/2 => fn _, _ -> %User{id: 1, name: "josevalim"} end})
-  end
-
-  test "inject 2nd layer" do
-    assert [{:get_user_by_id, 1}] == Accounts.__defr_funs__()
-
-    assert %Right{right: %User{id: 2, name: "chrismccord"}} ==
-             UserController.profile("2")
-             |> Reader.run(%{
-               &User.get_by_id/1 => fn _ ->
-                 Reader.new(fn _ -> Right.new(%User{id: 2, name: "chrismccord"}) end)
-               end
-             })
-  end
+```elixir
+test "Accounts.sign_in" do
+  assert true ==
+          Accounts.sign_in(100, "Ju8AufbPr*")
+          |> Reader.run(
+            mock(%{&Repo.get/2 => %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "Ju8AufbPr*")}})
+          )
 end
 ```
 

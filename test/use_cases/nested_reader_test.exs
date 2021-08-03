@@ -37,6 +37,16 @@ defmodule Defr.NestedCallTest do
   test "Accounts.sign_in" do
     assert true ==
              Accounts.sign_in(100, "hello")
+             |> Reader.run(%{
+               &Repo.get/2 => fn _schema, _user_id ->
+                 Reader.new(fn _env ->
+                   %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "hello")}
+                 end)
+               end
+             })
+
+    assert true ==
+             Accounts.sign_in(100, "hello")
              |> Reader.run(
                mock(%{&Repo.get/2 => %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "hello")}})
              )
