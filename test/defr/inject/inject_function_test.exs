@@ -35,7 +35,7 @@ defmodule Defr.Inject.InjectFunctionTest do
         end
       end
 
-    actual = Inject.inject_function(:def, head, body, env_with_macros())
+    actual = Inject.inject_function(head, body, env_with_macros())
     assert Macro.to_string(expected) == Macro.to_string(actual)
   end
 

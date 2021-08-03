@@ -14,7 +14,7 @@ defmodule Defr.Inject do
     end
   end
 
-  def inject_function(def_type, head, body, %Macro.Env{file: file, line: line} = env)
+  def inject_function(head, body, %Macro.Env{file: file, line: line} = env)
       when is_list(body) do
     inject_results =
       body
@@ -58,17 +58,10 @@ defmodule Defr.Inject do
       end)
 
     fa = get_fa(head)
-    definition = {def_type, [context: Elixir, import: Kernel], [head, injected_body]}
 
-    case def_type do
-      :def ->
-        quote do
-          @defr_funs unquote(fa)
-          unquote(definition)
-        end
-
-      :defp ->
-        definition
+    quote do
+      @defr_funs unquote(fa)
+      def unquote(head), unquote(injected_body)
     end
   end
 
