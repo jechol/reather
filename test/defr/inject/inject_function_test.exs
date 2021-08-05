@@ -28,12 +28,7 @@ defmodule Defr.Inject.InjectFunctionTest do
                   Defr.Runner.call_remote({Calc, :sum, 2}, [a, b], deps)
                   |> Algae.Reader.run(deps)
 
-            return(
-              (
-                import Calc
-                sum(a, b)
-              )
-            )
+            return(Calc.macro_sum(a, b))
           end
         end
       end

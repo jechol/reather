@@ -21,7 +21,7 @@ defmodule Defr.NestedReaderTest do
     defstruct [:id, :pw_hash]
 
     defr get_by_id(user_id) do
-      Repo.get(__MODULE__, user_id) |> inject()
+      return(Repo.get(__MODULE__, user_id) |> inject())
     end
   end
 
@@ -30,7 +30,7 @@ defmodule Defr.NestedReaderTest do
 
     defr sign_in(user_id, pw) do
       let user = User.get_by_id(user_id) |> inject() |> run()
-      Password.validate(pw, user.pw_hash)
+      return(Password.validate(pw, user.pw_hash))
     end
   end
 

@@ -92,15 +92,15 @@ defmodule Defr.Inject do
     end
   end
 
-  defp get_fa({:when, _, [name_args, _when_cond]}) do
+  def get_fa({:when, _, [name_args, _when_cond]}) do
     get_fa(name_args)
   end
 
-  defp get_fa({name, _, args}) when is_list(args) do
+  def get_fa({name, _, args}) when is_list(args) do
     {name, args |> Enum.count()}
   end
 
-  defp get_fa({name, _, _}) do
+  def get_fa({name, _, _}) do
     {name, 0}
   end
 
@@ -108,7 +108,7 @@ defmodule Defr.Inject do
     with {:ok, ^blk} <- blk |> check_no_modifier_recursively() do
       injected_blk =
         blk
-        |> expand_recursively!(env)
+        # |> expand_recursively!(env)
         |> mark_remote_call_recursively!()
         |> Macro.postwalk(&inject/1)
 
@@ -175,6 +175,10 @@ defmodule Defr.Inject do
     ast
   end
 
+  defp inject({:|>, _, [left, {:inject, ctx, []}]}) do
+    inject({:inject, ctx, [left]})
+  end
+
   defp inject({:inject, _, [{{:., _, [mod, name]}, _, args}]})
        when is_atom(name) and is_list(args) do
     arity = Enum.count(args)
@@ -196,6 +200,10 @@ defmodule Defr.Inject do
         deps
       )
     end
+  end
+
+  defp inject({:|>, _, [left, {:run, ctx, []}]}) do
+    inject({:run, ctx, [left]})
   end
 
   defp inject({:run, _, [reader]}) do

@@ -50,11 +50,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
     expected =
       quote do
         &Calc.sum/2
-
-        (
-          import(Calc)
-          sum(10, 20)
-        )
+        Calc.macro_sum(10, 20)
 
         case 1 == 1 do
           x when x == true ->
