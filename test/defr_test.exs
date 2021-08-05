@@ -28,25 +28,50 @@ defmodule DefrTest do
       defr bar(type) when is_atom(type) do
         case type do
           # Remote
-          :mod -> __MODULE__.quack()
-          :remote -> Enum.count([1, 2])
-          :nested_remote -> {DoubleNested.to_int("99"), DoubleNested.to_atom("hello")}
-          :pipe -> "1" |> Foo.id()
-          :macro -> Calc.macro_sum(10, 20)
-          :capture -> &Calc.sum/2
-          :kernel_plus -> Kernel.+(1, 10)
-          :string_to_atom -> "foobar" |> String.to_atom()
-          :string_to_integer -> "100" |> String.to_integer()
+          :mod ->
+            __MODULE__.quack() |> inject()
+
+          :remote ->
+            Enum.count([1, 2]) |> inject()
+
+          :nested_remote ->
+            {DoubleNested.to_int("99") |> inject(), DoubleNested.to_atom("hello") |> inject()}
+
+          :pipe ->
+            "1" |> Foo.id() |> inject()
+
+          :macro ->
+            Calc.macro_sum(10, 20)
+
+          :capture ->
+            &Calc.sum/2
+
+          :kernel_plus ->
+            Kernel.+(1, 10)
+
+          :string_to_atom ->
+            "foobar" |> String.to_atom() |> inject()
+
+          :string_to_integer ->
+            "100" |> String.to_integer() |> inject()
+
           # Local, Import
-          :local -> quack()
-          :import -> last([10, 20])
-          :anonymous_fun -> [1, 2] |> Enum.map(&Calc.id(&1))
-          :string_concat -> "#{[1, 2] |> Enum.map(&"*#{&1}*") |> Enum.join()}"
+          :local ->
+            quack() |> inject()
+
+          :import ->
+            last([10, 20]) |> inject()
+
+          :anonymous_fun ->
+            [1, 2] |> Enum.map(&Calc.id(&1)) |> inject()
+
+          :string_concat ->
+            "#{[1, 2] |> Enum.map(&"*#{&1}*") |> Enum.join()}"
         end
       end
 
       defr hash(<<data::binary>>) do
-        :crypto.hash(:md5, <<data::binary>>)
+        :crypto.hash(:md5, <<data::binary>>) |> inject()
       end
     end
 

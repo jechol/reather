@@ -1,9 +1,18 @@
 defmodule Defr.Runner do
   alias Algae.Reader
 
-  def call_mock({m, f, a}, args, deps) do
+  def call_remote({m, f, a}, args, deps) do
     fun = :erlang.make_fun(m, f, a)
     Map.get(deps, fun, fun) |> :erlang.apply(args)
+  end
+
+  def call_local({m, f, a}, original, args, deps) do
+    fun = :erlang.make_fun(m, f, a)
+
+    case Map.fetch(deps, fun) do
+      {:ok, mock} -> :erlang.apply(mock, args)
+      :error -> original.()
+    end
   end
 
   def run_reader(%Reader{} = r, deps) do

@@ -175,34 +175,131 @@ defmodule Defr.Inject do
     ast
   end
 
-  defp inject({_func, [{:skip_inject, true} | _], _args} = ast) do
-    ast
+  defp inject({{:., _, [{:@, _, [{:@, _, [mod]}]}, name]}, _, args}) do
   end
 
-  defp inject({{:., _, [_, :ask]}, _, _} = ast) do
-    ast
+  defp inject(
+         {{:., [],
+           [
+             {:__aliases__, [],
+              [
+                {:@, [context: Elixir, import: Kernel],
+                 [
+                   {:@, [context: Elixir, import: Kernel],
+                    [{:__aliases__, [context: Elixir, alias: false], [:A]}]}
+                 ]},
+                :B
+              ]},
+             :b
+           ]}, [], '\n'}
+       ) do
+    {{:., [],
+      [
+        {:__aliases__, [],
+         [
+           {:@, [context: Elixir, import: Kernel],
+            [
+              {:@, [context: Elixir, import: Kernel],
+               [{:__aliases__, [context: Elixir, alias: false], [:A]}]}
+            ]},
+           :B,
+           :C
+         ]},
+        :b
+      ]}, [], '\n'}
   end
 
-  defp inject({{:., _dot_ctx, [mod, name]}, _call_ctx, args} = ast)
+  defp inject({:&, [], [{:/, _, _}]} = capture) do
+    capture
+  end
+
+  defp inject({:inject, _, [{{:., _, [mod, name]}, _, args}]})
        when is_atom(name) and is_list(args) do
-    if AST.is_module_ast(mod) and AST.unquote_module_ast(mod) not in @uninjectable do
-      arity = Enum.count(args)
+    arity = Enum.count(args)
 
-      quote do
-        Defr.Runner.call_mock({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
-        |> Defr.Runner.run_reader(deps)
-      end
-    else
-      ast
-    end
-  end
-
-  defp inject({local_fun, ctx, args} = ast)
-       when is_atom(local_fun) and is_list(ctx) and is_list(args) do
     quote do
-      Defr.Runner.run_reader(unquote(ast))
+      Defr.Runner.call_remote({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
     end
   end
+
+  defp inject({:inject, _, [{name, _, args} = local_call]})
+       when is_atom(name) and is_list(args) do
+    arity = Enum.count(args)
+
+    quote do
+      Defr.Runner.call_local(
+        {__MODULE__, unquote(name), unquote(arity)},
+        fn -> unquote(local_call) end,
+        unquote(args),
+        deps
+      )
+    end
+  end
+
+  defp inject({:run, _, [reader]}) do
+    quote do
+      unquote(reader) |> Algae.Reader.run(deps)
+    end
+  end
+
+  # defp inject({:&, _, [{{:., _dot_ctx, [mod, name]}, _call_ctx, args} = _remote_call]})
+  #      when is_atom(name) and is_list(args) do
+  #   arity = Enum.count(args)
+
+  #   quote do
+  #     Defr.Runner.call_remote({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
+  #     |> Defr.Runner.run_reader(deps)
+  #   end
+  # end
+
+  # defp inject({:&, _, [{name, _call_ctx, args} = local_call]})
+  #      when is_atom(name) and is_list(args) do
+  #   arity = Enum.count(args)
+
+  #   quote do
+  #     Defr.Runner.call_remote(
+  #       {__MODULE__, unquote(name), unquote(arity)},
+  #       fn -> unquote(local_call) end,
+  #       unquote(args),
+  #       deps
+  #     )
+  #     |> Defr.Runner.run_reader(deps)
+  #   end
+  # end
+
+  # defp inject({:&, _, [{_, _, _}]} = ast) do
+  #   ast |> IO.inspect(label: "Uninspected AST")
+  #   raise ""
+  # end
+
+  # defp inject({_func, [{:skip_inject, true} | _], _args} = ast) do
+  #   ast
+  # end
+
+  # defp inject({{:., _, [_, :ask]}, _, _} = ast) do
+  #   ast
+  # end
+
+  # defp inject({{:., _dot_ctx, [mod, name]}, _call_ctx, args} = ast)
+  #      when is_atom(name) and is_list(args) do
+  #   if AST.is_module_ast(mod) and AST.unquote_module_ast(mod) not in @uninjectable do
+  #     arity = Enum.count(args)
+
+  #     quote do
+  #       Defr.Runner.call_remote({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
+  #       |> Defr.Runner.run_reader(deps)
+  #     end
+  #   else
+  #     ast
+  #   end
+  # end
+
+  # defp inject({local_fun, ctx, args} = ast)
+  #      when is_atom(local_fun) and is_list(ctx) and is_list(args) do
+  #   quote do
+  #     Defr.Runner.run_reader(unquote(ast))
+  #   end
+  # end
 
   defp inject(ast) do
     ast

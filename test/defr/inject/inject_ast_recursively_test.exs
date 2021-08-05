@@ -43,7 +43,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
         Calc.macro_sum(10, 20)
 
         case 1 == 1 do
-          x when x == true -> Math.pow(2, x)
+          x when x == true -> Math.pow(2, x) |> inject()
         end
       end
 
@@ -58,7 +58,7 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
 
         case 1 == 1 do
           x when x == true ->
-            Defr.Runner.call_mock({Math, :pow, 2}, [2, x], deps)
+            Defr.Runner.call_remote({Math, :pow, 2}, [2, x], deps)
         end
       end
 
@@ -80,14 +80,16 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
   test "operator case 1" do
     blk =
       quote do
-        Calc.to_int(a) >>> fn a_int -> Calc.to_int(b) >>> fn b_int -> a_int + b_int end end
+        Calc.to_int(a) |> inject() >>>
+          fn a_int -> Calc.to_int(b) |> inject() >>> fn b_int -> a_int + b_int end end
       end
 
     expected =
       quote do
-        Defr.Runner.call_mock({Calc, :to_int, 1}, [a], deps) >>>
+        Defr.Runner.call_remote({Calc, :to_int, 1}, [a], deps) >>>
           fn a_int ->
-            Defr.Runner.call_mock({Calc, :to_int, 1}, [b], deps) >>> fn b_int -> a_int + b_int end
+            Defr.Runner.call_remote({Calc, :to_int, 1}, [b], deps) >>>
+              fn b_int -> a_int + b_int end
           end
       end
 
@@ -98,14 +100,15 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
   test "operator case 2" do
     blk =
       quote do
-        Calc.to_int(a) >>> fn a_int -> (fn b_int -> a_int + b_int end).(Calc.to_int(b)) end
+        Calc.to_int(a) |> inject() >>>
+          fn a_int -> (fn b_int -> a_int + b_int end).(Calc.to_int(b)) end
       end
 
     expected =
       quote do
-        Defr.Runner.call_mock({Calc, :to_int, 1}, [a], deps) >>>
+        Defr.Runner.call_remote({Calc, :to_int, 1}, [a], deps) >>>
           fn a_int ->
-            (fn b_int -> a_int + b_int end).(Defr.Runner.call_mock({Calc, :to_int, 1}, [b], deps))
+            (fn b_int -> a_int + b_int end).(Calc.to_int(b))
           end
       end
 
@@ -117,11 +120,11 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
     blk =
       quote do
         try do
-          Calc.id(:try)
+          Calc.id(:try) |> inject()
         else
           x -> Calc.id(:else)
         rescue
-          e in ArithmeticError -> Calc.id(e)
+          e in ArithmeticError -> Calc.id(e) |> inject()
         catch
           :error, number -> Calc.id(number)
         end
@@ -130,16 +133,14 @@ defmodule Defr.Inject.InjectAstRecursivelyTest do
     expected =
       quote do
         try do
-          Defr.Runner.call_mock({Calc, :id, 1}, [:try], deps)
+          Defr.Runner.call_remote({Calc, :id, 1}, [:try], deps)
         rescue
           e in ArithmeticError ->
-            Defr.Runner.call_mock({Calc, :id, 1}, [e], deps)
+            Defr.Runner.call_remote({Calc, :id, 1}, [e], deps)
         catch
-          :error, number ->
-            Defr.Runner.call_mock({Calc, :id, 1}, [number], deps)
+          :error, number -> Calc.id(number)
         else
-          x ->
-            Defr.Runner.call_mock({Calc, :id, 1}, [:else], deps)
+          x -> Calc.id(:else)
         end
       end
 

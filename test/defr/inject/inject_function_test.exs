@@ -7,7 +7,8 @@ defmodule Defr.Inject.InjectFunctionTest do
     {:defr, _, [head, body]} =
       quote do
         defr add(a, b) do
-          let _ = Calc.sum(a, b)
+          let _ = Calc.sum(a, b) |> inject()
+          let _ = Calc.sum(a, b) |> inject() |> run()
           Calc.macro_sum(a, b)
         end
       end
@@ -21,7 +22,11 @@ defmodule Defr.Inject.InjectFunctionTest do
           monad %Algae.Reader{} do
             deps <- Algae.Reader.ask()
 
-            let _ = Defr.Runner.call_mock({Calc, :sum, 2}, [a, b], deps)
+            let _ = Defr.Runner.call_remote({Calc, :sum, 2}, [a, b], deps)
+
+            let _ =
+                  Defr.Runner.call_remote({Calc, :sum, 2}, [a, b], deps)
+                  |> Algae.Reader.run(deps)
 
             return(
               (
