@@ -1,13 +1,17 @@
 defmodule Defr.Runner do
-  def call({m, f, a}, args, deps) do
-    fun = :erlang.make_fun(m, f, a)
-    ret = Map.get(deps, fun, fun) |> :erlang.apply(args)
+  alias Algae.Reader
 
-    if is_defr_fun?({m, f, a}) do
-      ret |> Algae.Reader.run(deps)
-    else
-      ret
-    end
+  def call_mock({m, f, a}, args, deps) do
+    fun = :erlang.make_fun(m, f, a)
+    Map.get(deps, fun, fun) |> :erlang.apply(args)
+  end
+
+  def run_reader(%Reader{} = r, deps) do
+    r |> Reader.run(deps)
+  end
+
+  def run_reader(non_reader, _deps) do
+    non_reader
   end
 
   def is_defr_fun?({m, f, a}) do

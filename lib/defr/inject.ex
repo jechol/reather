@@ -189,10 +189,18 @@ defmodule Defr.Inject do
       arity = Enum.count(args)
 
       quote do
-        Defr.Runner.call({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
+        Defr.Runner.call_mock({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
+        |> Defr.Runner.run_reader(deps)
       end
     else
       ast
+    end
+  end
+
+  defp inject({local_fun, ctx, args} = ast)
+       when is_atom(local_fun) and is_list(ctx) and is_list(args) do
+    quote do
+      Defr.Runner.run_reader(unquote(ast))
     end
   end
 
