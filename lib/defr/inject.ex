@@ -39,19 +39,7 @@ defmodule Defr.Inject do
       inject_results
       |> Enum.reduce([], fn
         {:do, injected_blk}, acc ->
-          do_blk =
-            {:do,
-             quote do
-               use Witchcraft.Monad
-
-               monad %Algae.Reader{} do
-                 deps <- Algae.Reader.ask()
-
-                 return(unquote(injected_blk))
-               end
-             end}
-
-          acc ++ [do_blk]
+          acc ++ [{:do, convert_do_block(injected_blk)}]
 
         {key, blk}, acc ->
           acc ++ [{key, blk}]
@@ -62,6 +50,32 @@ defmodule Defr.Inject do
     quote do
       @defr_funs unquote(fa)
       def unquote(head), unquote(injected_body)
+    end
+  end
+
+  defp convert_do_block({:__block__, _, exprs}) do
+    [last | except_last] = exprs |> Enum.reverse()
+    except_last = except_last |> Enum.reverse()
+
+    quote do
+      use Witchcraft.Monad
+
+      monad %Algae.Reader{} do
+        deps <- Algae.Reader.ask()
+        unquote(except_last)
+        return(unquote(last))
+      end
+    end
+  end
+
+  defp convert_do_block(expr) do
+    quote do
+      use Witchcraft.Monad
+
+      monad %Algae.Reader{} do
+        deps <- Algae.Reader.ask()
+        return(unquote(expr))
+      end
     end
   end
 
