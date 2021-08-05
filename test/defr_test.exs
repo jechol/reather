@@ -17,7 +17,7 @@ defmodule DefrTest do
 
     defmodule Foo do
       use Defr
-      import List, only: [first: 1]
+      import List, only: [last: 1]
       require Calc
 
       def quack(), do: :arity_0_quack
@@ -39,7 +39,7 @@ defmodule DefrTest do
           :string_to_integer -> "100" |> String.to_integer()
           # Local, Import
           :local -> quack()
-          :import -> first([10, 20])
+          :import -> last([10, 20])
           :anonymous_fun -> [1, 2] |> Enum.map(&Calc.id(&1))
           :string_concat -> "#{[1, 2] |> Enum.map(&"*#{&1}*") |> Enum.join()}"
         end
@@ -62,7 +62,7 @@ defmodule DefrTest do
       assert Foo.bar(:string_to_integer) |> Reader.run(%{}) == 100
 
       assert Foo.bar(:local) |> Reader.run(%{}) == :arity_0_quack
-      assert Foo.bar(:import) |> Reader.run(%{}) == 10
+      assert Foo.bar(:import) |> Reader.run(%{}) == 20
       assert Foo.bar(:anonymous_fun) |> Reader.run(%{}) == [1, 2]
       assert Foo.bar(:string_concat) |> Reader.run(%{}) == "*1**2*"
 
@@ -116,8 +116,8 @@ defmodule DefrTest do
     end
 
     defr multi() do
-      %{a: a} <- Algae.Reader.ask()
-      %{b: b} <- Algae.Reader.ask()
+      %{a: a} <- ask()
+      %{b: b} <- ask()
       1 + a + b
     end
   end

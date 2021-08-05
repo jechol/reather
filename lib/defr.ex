@@ -1,11 +1,12 @@
 defmodule Defr do
-  defmacro __using__([]) do
+  defmacro __using__(opts) do
     %Macro.Env{function: function} = __CALLER__
 
     if function == nil do
       quote do
         import Defr, only: :macros
-        use Witchcraft.Monad
+        use Witchcraft, unquote(opts)
+        import Algae.Reader, only: [ask: 0, ask: 1]
 
         Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
         @before_compile unquote(Defr.Inject)
