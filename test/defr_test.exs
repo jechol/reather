@@ -108,6 +108,28 @@ defmodule DefrTest do
     end
   end
 
+  defmodule ExprSubject do
+    use Defr
+
+    defr single() do
+      1 + 1
+    end
+
+    defr multi() do
+      %{a: a} <- Algae.Reader.ask()
+      %{b: b} <- Algae.Reader.ask()
+      1 + a + b
+    end
+  end
+
+  test "single" do
+    assert 2 == ExprSubject.single() |> Reader.run(%{})
+  end
+
+  test "multi" do
+    assert 111 == ExprSubject.multi() |> Reader.run(%{a: 10, b: 100})
+  end
+
   defmodule MockSubject do
     use Defr
 

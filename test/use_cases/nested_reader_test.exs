@@ -29,7 +29,7 @@ defmodule Defr.NestedReaderTest do
     use Defr
 
     defr sign_in(user_id, pw) do
-      user = User.get_by_id(user_id)
+      let user = User.get_by_id(user_id)
       Password.validate(pw, user.pw_hash)
     end
   end

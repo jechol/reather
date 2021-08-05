@@ -7,7 +7,7 @@ defmodule Defr.Inject.InjectFunctionTest do
     {:defr, _, [head, body]} =
       quote do
         defr add(a, b) do
-          Calc.sum(a, b)
+          let _ = Calc.sum(a, b)
           Calc.macro_sum(a, b)
         end
       end
@@ -21,14 +21,12 @@ defmodule Defr.Inject.InjectFunctionTest do
           monad %Algae.Reader{} do
             deps <- Algae.Reader.ask()
 
+            let _ = Defr.Runner.run({Calc, :sum, 2}, [a, b], deps)
+
             return(
               (
-                Defr.Runner.run({Calc, :sum, 2}, [a, b], deps)
-
-                (
-                  import Calc
-                  sum(a, b)
-                )
+                import Calc
+                sum(a, b)
               )
             )
           end
@@ -36,6 +34,34 @@ defmodule Defr.Inject.InjectFunctionTest do
       end
 
     actual = Inject.inject_function(head, body, env_with_macros())
+    assert Macro.to_string(expected) == Macro.to_string(actual)
+  end
+
+  test "multi" do
+    {:defr, _, [head, body]} =
+      quote do
+        defr multi() do
+          env <- Algae.Reader.ask()
+          1 + env
+        end
+      end
+
+    expected =
+      quote do
+        @defr_funs {:multi, 0}
+        def multi() do
+          use Witchcraft.Monad
+
+          monad %Algae.Reader{} do
+            deps <- Algae.Reader.ask()
+
+            env <- Algae.Reader.ask()
+            return(1 + env)
+          end
+        end
+      end
+
+    actual = Inject.inject_function(head, body, __ENV__)
     assert Macro.to_string(expected) == Macro.to_string(actual)
   end
 
