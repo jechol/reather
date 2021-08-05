@@ -1,11 +1,18 @@
 defmodule Defr do
-  defmacro __using__(_) do
-    quote do
-      import Defr, only: :macros
-      use Witchcraft.Monad
+  defmacro __using__([]) do
+    %Macro.Env{function: function} = __CALLER__
 
-      Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
-      @before_compile unquote(Defr.Inject)
+    if function == nil do
+      quote do
+        import Defr, only: :macros
+        use Witchcraft.Monad
+
+        Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
+        @before_compile unquote(Defr.Inject)
+      end
+    else
+      quote do
+      end
     end
   end
 
