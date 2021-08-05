@@ -1,5 +1,5 @@
 defmodule Defr.Runner do
-  def run({m, f, a}, args, deps) do
+  def call({m, f, a}, args, deps) do
     fun = :erlang.make_fun(m, f, a)
     ret = Map.get(deps, fun, fun) |> :erlang.apply(args)
 

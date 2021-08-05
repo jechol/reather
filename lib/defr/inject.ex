@@ -189,7 +189,7 @@ defmodule Defr.Inject do
       arity = Enum.count(args)
 
       quote do
-        Defr.Runner.run({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
+        Defr.Runner.call({unquote(mod), unquote(name), unquote(arity)}, unquote(args), deps)
       end
     else
       ast

@@ -21,7 +21,7 @@ defmodule Defr.Inject.InjectFunctionTest do
           monad %Algae.Reader{} do
             deps <- Algae.Reader.ask()
 
-            let _ = Defr.Runner.run({Calc, :sum, 2}, [a, b], deps)
+            let _ = Defr.Runner.call({Calc, :sum, 2}, [a, b], deps)
 
             return(
               (
