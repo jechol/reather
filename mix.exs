@@ -7,7 +7,7 @@ defmodule Defr.MixProject do
     [
       app: :defr,
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
@@ -33,7 +33,11 @@ defmodule Defr.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.23.0", only: :dev, runtime: false},
-      {:algae, "~> 1.3"}
+      {:algae, git: "https://github.com/witchcrafters/algae.git", override: true},
+      {:quark, git: "https://github.com/witchcrafters/quark.git", override: true},
+      {:type_class, git: "https://github.com/witchcrafters/type_class.git", override: true},
+      # Maintain until PR is merged. (https://github.com/witchcrafters/witchcraft/pull/83)
+      {:witchcraft, git: "https://github.com/trevorite/witchcraft.git", override: true}
     ]
   end
 

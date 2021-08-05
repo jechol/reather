@@ -1,7 +1,7 @@
 let
   nixpkgs = import (fetchTarball {
-    url = "https://github.com/trevorite/nixpkgs/archive/21.05.tar.gz";
-    sha256 = "sha256:1ckzhh24mgz6jd1xhfgx0i9mijk6xjqxwsshnvq789xsavrmsc36";
+    url = "https://github.com/trevorite/nixpkgs/archive/elixir_1_12_1.tar.gz";
+    sha256 = "sha256:0hjgc5fsk43ffgzb6g65cq1n66jbq04cyy2i72r0myqggijjlpmq";
   }) { };
   platform = if nixpkgs.stdenv.isDarwin then [
     nixpkgs.darwin.apple_sdk.frameworks.CoreServices
