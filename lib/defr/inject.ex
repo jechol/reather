@@ -53,15 +53,24 @@ defmodule Defr.Inject do
     end
   end
 
-  defp convert_do_block({:__block__, ctx, exprs}) do
-    [last | except_last] = exprs |> Enum.reverse()
+  def convert_do_block({:__block__, ctx, exprs}) do
+    build_do_block(ctx, exprs |> Enum.take(Enum.count(exprs) - 1), exprs |> List.last())
+  end
 
+  def convert_do_block({_, ctx, _} = expr) do
+    build_do_block(ctx, [], expr)
+  end
+
+  defp build_do_block(ctx, except_last, last) do
     monad_body =
       [
         quote do
-          deps <- Algae.Reader.ask()
+          var!(deps) <- Algae.Reader.ask()
+        end,
+        quote do
+          let _ = var!(deps)
         end
-        | except_last |> Enum.reverse()
+        | except_last
       ] ++
         [
           quote do
@@ -74,20 +83,6 @@ defmodule Defr.Inject do
 
       monad %Algae.Reader{} do
         unquote({:__block__, ctx, monad_body})
-        # deps <- Algae.Reader.ask()
-        # unquote({:__block__, ctx, except_last |> Enum.reverse()})
-        # return(unquote(last))
-      end
-    end
-  end
-
-  defp convert_do_block(expr) do
-    quote do
-      use Witchcraft.Monad
-
-      monad %Algae.Reader{} do
-        deps <- Algae.Reader.ask()
-        return(unquote(expr))
       end
     end
   end

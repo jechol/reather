@@ -60,19 +60,18 @@ defmodule Defr do
   defmacro defr(head, do: body) do
     # do_defr(head, body, __CALLER__)
     fa = Defr.Inject.get_fa(head)
-    do_block = build_do_block(body)
+    do_block = Defr.Inject.convert_do_block(body)
 
-    quote do
-      @defr_funs unquote(fa)
-      def unquote(head) do
-        use Witchcraft.Monad
-
-        monad %Algae.Reader{} do
+    result =
+      quote do
+        @defr_funs unquote(fa)
+        def unquote(head) do
           unquote(do_block)
         end
       end
-    end
-    |> IO.inspect(label: "defr")
+
+    result |> Macro.to_string() |> IO.puts()
+    result
   end
 
   defmacro defrp(head, do: body) do
@@ -104,25 +103,25 @@ defmodule Defr do
     |> trace(original, env)
   end
 
-  defp build_do_block({:__block__, ctx, lines}) do
-    {:__block__, _, new_lines} =
-      quote do
-        var!(deps) <- Algae.Reader.ask()
-        let _ = var!(deps)
-      end
+  # defp build_do_block({:__block__, ctx, lines}) do
+  #   {:__block__, _, new_lines} =
+  #     quote do
+  #       var!(deps) <- Algae.Reader.ask()
+  #       let _ = var!(deps)
+  #     end
 
-    {:__block__, ctx, new_lines ++ lines}
-  end
+  #   {:__block__, ctx, new_lines ++ lines}
+  # end
 
-  defp build_do_block({_, ctx, _} = line) do
-    {:__block__, _, new_lines} =
-      quote do
-        var!(deps) <- Algae.Reader.ask()
-        let _ = var!(deps)
-      end
+  # defp build_do_block({_, ctx, _} = line) do
+  #   {:__block__, _, new_lines} =
+  #     quote do
+  #       var!(deps) <- Algae.Reader.ask()
+  #       let _ = var!(deps)
+  #     end
 
-    {:__block__, ctx, new_lines ++ [line]}
-  end
+  #   {:__block__, ctx, new_lines ++ [line]}
+  # end
 
   defp trace(injected, original, %Macro.Env{file: file, line: line}) do
     if Application.get_env(:defr, :trace, false) do
