@@ -169,10 +169,11 @@ defmodule Defr do
     end
   end
 
+  @trace Application.compile_env(:defr, :trace, false)
   defp trace(ast) do
     ast
     |> tap(fn ast ->
-      if Application.get_env(:defr, :trace, false) do
+      if @trace do
         ast |> Macro.to_string() |> IO.puts()
       end
     end)
