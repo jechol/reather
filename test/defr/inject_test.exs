@@ -9,15 +9,14 @@ defmodule Defr.InjectTest do
     import Enum, only: [at: 2]
 
     defr top(list) do
-      middle(list |> List.flatten() |> inject()) |> run()
+      list |> List.flatten() |> inject() |> middle() |> run()
     end
 
     defr middle(list) do
-      bottom(list) |> inject() |> run()
+      list |> bottom() |> inject() |> run()
     end
 
     defrp bottom(list) do
-      let(_ = &at/2)
       %{pos: pos} <- ask()
       at(list, pos) |> inject()
     end
