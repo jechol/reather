@@ -5,8 +5,10 @@ defmodule Defr do
       import Algae.Reader, only: [ask: 0, ask: 1]
       import Defr, only: :macros
 
-      Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
-      @before_compile Defr
+      unless Module.has_attribute?(__MODULE__, :defr_funs) do
+        Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
+        @before_compile Defr
+      end
     end
   end
 
