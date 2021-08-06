@@ -88,33 +88,24 @@ defmodule Defr do
   defmacro defr(head, do: body) do
     # do_defr(head, body, __CALLER__)
     fa = Defr.Inject.get_fa(head)
-    do_block = Defr.Inject.convert_do_block(body)
+    do_block = body |> Defr.Inject.convert_do_block()
 
-    result =
-      quote do
-        @defr_funs unquote(fa)
-        def unquote(head) do
-          unquote(do_block)
-        end
+    quote do
+      @defr_funs unquote(fa)
+      def unquote(head) do
+        unquote(do_block)
       end
-
-    result |> Macro.to_string() |> IO.puts()
-    result
+    end
   end
 
   defmacro defrp(head, do: body) do
-    # do_defr(head, body, __CALLER__)
     fa = Defr.Inject.get_fa(head)
+    do_block = body |> Defr.Inject.convert_do_block()
 
     quote do
       @defr_funs unquote(fa)
       defp unquote(head) do
-        use Witchcraft.Monad
-
-        monad %Algae.Reader{} do
-          deps <- Algae.Reader.ask()
-          unquote(body)
-        end
+        unquote(do_block)
       end
     end
   end

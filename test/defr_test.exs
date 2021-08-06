@@ -3,136 +3,6 @@ defmodule DefrTest do
   use Defr
   alias Algae.Reader
 
-  defmodule Nested do
-    defmodule DoubleNested do
-      defdelegate to_int(str), to: String, as: :to_integer
-      defdelegate to_atom(str), to: String, as: :to_atom
-    end
-  end
-
-  alias Nested.DoubleNested
-
-  describe "defr" do
-    def quack(), do: nil
-
-    defmodule Foo do
-      use Defr
-      import List, only: [last: 1]
-      require Calc
-
-      def quack(), do: :arity_0_quack
-      def quack(_), do: :arity_1_quack
-
-      def id(v), do: v
-
-      defr bar(type) when is_atom(type) do
-        case type do
-          # Remote
-          :mod ->
-            __MODULE__.quack() |> inject()
-
-          :remote ->
-            Enum.count([1, 2]) |> inject()
-
-          :nested_remote ->
-            {DoubleNested.to_int("99") |> inject(), DoubleNested.to_atom("hello") |> inject()}
-
-          :pipe ->
-            "1" |> Foo.id() |> inject()
-
-          :macro ->
-            Calc.macro_sum(10, 20)
-
-          :capture ->
-            &Calc.sum/2
-
-          :kernel_plus ->
-            Kernel.+(1, 10)
-
-          :string_to_atom ->
-            "foobar" |> String.to_atom() |> inject()
-
-          :string_to_integer ->
-            "100" |> String.to_integer() |> inject()
-
-          # Local, Import
-          :local ->
-            quack() |> inject()
-
-          :import ->
-            last([10, 20]) |> inject()
-
-          :anonymous_fun ->
-            [1, 2] |> Enum.map(&Calc.id(&1)) |> inject()
-
-          :string_concat ->
-            "#{[1, 2] |> Enum.map(&"*#{&1}*") |> Enum.join()}"
-        end
-      end
-
-      defr hash(<<data::binary>>) do
-        :crypto.hash(:md5, <<data::binary>>) |> inject()
-      end
-    end
-
-    test "original works" do
-      assert Foo.bar(:mod) |> Reader.run(%{}) == :arity_0_quack
-      assert Foo.bar(:remote) |> Reader.run(%{}) == 2
-      assert Foo.bar(:nested_remote) |> Reader.run(%{}) == {99, :hello}
-      assert Foo.bar(:pipe) |> Reader.run(%{}) == "1"
-      assert Foo.bar(:macro) |> Reader.run(%{}) == 30
-      assert (Foo.bar(:capture) |> Reader.run(%{})).(20, 40) == 60
-      assert Foo.bar(:kernel_plus) |> Reader.run(%{}) == 11
-      assert Foo.bar(:string_to_atom) |> Reader.run(%{}) == :foobar
-      assert Foo.bar(:string_to_integer) |> Reader.run(%{}) == 100
-
-      assert Foo.bar(:local) |> Reader.run(%{}) == :arity_0_quack
-      assert Foo.bar(:import) |> Reader.run(%{}) == 20
-      assert Foo.bar(:anonymous_fun) |> Reader.run(%{}) == [1, 2]
-      assert Foo.bar(:string_concat) |> Reader.run(%{}) == "*1**2*"
-
-      assert Foo.hash("hello") |> Reader.run(%{}) ==
-               <<93, 65, 64, 42, 188, 75, 42, 118, 185, 113, 157, 145, 16, 23, 197, 146>>
-    end
-
-    defmodule Baz do
-      def quack, do: "baz quack"
-      def to_int(_), do: "baz to_int"
-      def to_atom(_), do: "baz to_atom"
-    end
-
-    test "working case" do
-      assert Foo.bar(:mod) |> Reader.run(%{&Foo.quack/0 => fn -> :injected end}) ==
-               :injected
-
-      assert Foo.bar(:remote) |> Reader.run(%{&Enum.count/1 => fn _ -> 9999 end}) ==
-               9999
-
-      assert Foo.bar(:nested_remote)
-             |> Reader.run(%{
-               &DoubleNested.to_int/1 => &Baz.to_int/1,
-               &DoubleNested.to_atom/1 => &Baz.to_atom/1
-             }) == {"baz to_int", "baz to_atom"}
-
-      assert Foo.bar(:nested_remote)
-             |> Reader.run(mock(%{&DoubleNested.to_atom/1 => :mocked})) ==
-               {99, :mocked}
-
-      assert Foo.bar(:pipe)
-             |> Reader.run(%{&Foo.id/1 => fn _ -> "100" end, &Enum.count/1 => fn _ -> 9999 end}) ==
-               "100"
-
-      assert Foo.bar(:macro) |> Reader.run(%{&Calc.sum/2 => fn _, _ -> 999 end}) ==
-               30
-
-      assert Foo.bar(:string_to_atom) |> Reader.run(%{&String.to_atom/1 => fn _ -> :injected end}) ==
-               :injected
-
-      assert Foo.hash("hello") |> Reader.run(%{&:crypto.hash/2 => fn _, _ -> :world end}) ==
-               :world
-    end
-  end
-
   defmodule ExprSubject do
     use Defr
 
@@ -153,6 +23,35 @@ defmodule DefrTest do
 
   test "multi" do
     assert 111 == ExprSubject.multi() |> Reader.run(%{a: 10, b: 100})
+  end
+
+  defmodule Target do
+    use Defr
+
+    import Enum, only: [at: 2]
+
+    defr top(list, pos) do
+      middle(list, pos) |> run()
+    end
+
+    defr middle(list, pos) do
+      bottom(list, pos) |> inject() |> run()
+    end
+
+    defrp bottom(list, pos) do
+      at(list, pos) |> inject()
+    end
+  end
+
+  test "import" do
+    assert 1 == Target.top([0, 1], 1) |> Reader.run(%{})
+
+    assert :imported_func ==
+             Target.top([0, 1], 1) |> Reader.run(mock(%{&Enum.at/2 => :imported_func}))
+
+    assert :private_func ==
+             Target.top([0, 1], 1)
+             |> Reader.run(mock(%{&Target.bottom/2 => :private_func}))
   end
 
   defmodule MockSubject do
