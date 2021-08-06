@@ -41,16 +41,43 @@ defmodule Defr do
   defmacro inject({name, _, args} = local_call)
            when is_atom(name) and is_list(args) do
     arity = Enum.count(args)
+    %Macro.Env{module: caller_mod, functions: mod_funs} = __CALLER__
+    mod = find_func_module({name, arity}, mod_funs, caller_mod)
 
-    quote do
-      Defr.Runner.call_local(
-        {__MODULE__, unquote(name), unquote(arity)},
-        fn -> unquote(local_call) end,
-        unquote(args),
-        var!(deps)
-      )
+    if mod == caller_mod do
+      # Local call
+      quote do
+        Defr.Runner.call_local(
+          {__MODULE__, unquote(name), unquote(arity)},
+          fn -> unquote(local_call) end,
+          unquote(args),
+          var!(deps)
+        )
+      end
+    else
+      # Remote call
+      mod_ast = quote do: unquote(mod)
+
+      quote do
+        unquote(mod_ast).unquote(name)(unquote_splicing(args)) |> Defr.inject()
+      end
     end
     |> tap(fn ast -> ast |> Macro.to_string() |> IO.puts() end)
+  end
+
+  defp find_func_module(name_arity, mod_funs, caller_mod) do
+    remote =
+      mod_funs
+      |> Enum.find(fn {mod, funs} ->
+        name_arity in funs
+      end)
+
+    if remote != nil do
+      {remote_mod, _} = remote
+      remote_mod
+    else
+      caller_mod
+    end
   end
 
   defmacro inject(other) do
