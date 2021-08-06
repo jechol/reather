@@ -30,10 +30,15 @@ defmodule Defr.Mock do
   end
 
   def wrap_if_reader({m, f, a}, const_fn, reader_fn) do
-    if Defr.Runner.is_defr_fun?({m, f, a}) do
+    if is_defr_fun?({m, f, a}) do
       reader_fn
     else
       const_fn
     end
+  end
+
+  defp is_defr_fun?({m, f, a}) do
+    Kernel.function_exported?(m, :__defr_funs__, 0) and
+      {f, a} in Kernel.apply(m, :__defr_funs__, [])
   end
 end
