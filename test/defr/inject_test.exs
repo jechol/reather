@@ -17,6 +17,7 @@ defmodule Defr.InjectTest do
     end
 
     defrp bottom(list, pos) do
+      let _ = &at/2
       at(list, pos) |> inject()
     end
   end

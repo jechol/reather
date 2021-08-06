@@ -6,7 +6,39 @@ defmodule Defr do
       import Defr, only: :macros
 
       Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
-      @before_compile unquote(Defr.Inject)
+      @before_compile unquote(Defr)
+    end
+  end
+
+  defmacro __before_compile__(_env) do
+    quote do
+      def __defr_funs__ do
+        @defr_funs
+      end
+    end
+  end
+
+  defmacro defr(head, do: body) do
+    fa = Defr.Inject.get_fa(head)
+    do_block = body |> Defr.Inject.convert_do_block()
+
+    quote do
+      @defr_funs unquote(fa)
+      def unquote(head) do
+        unquote(do_block)
+      end
+    end
+  end
+
+  defmacro defrp(head, do: body) do
+    fa = Defr.Inject.get_fa(head)
+    do_block = body |> Defr.Inject.convert_do_block()
+
+    quote do
+      @defr_funs unquote(fa)
+      defp unquote(head) do
+        unquote(do_block)
+      end
     end
   end
 
@@ -51,30 +83,6 @@ defmodule Defr do
 
       quote do
         unquote(mod_ast).unquote(name)(unquote_splicing(args)) |> Defr.inject()
-      end
-    end
-  end
-
-  defmacro defr(head, do: body) do
-    fa = Defr.Inject.get_fa(head)
-    do_block = body |> Defr.Inject.convert_do_block()
-
-    quote do
-      @defr_funs unquote(fa)
-      def unquote(head) do
-        unquote(do_block)
-      end
-    end
-  end
-
-  defmacro defrp(head, do: body) do
-    fa = Defr.Inject.get_fa(head)
-    do_block = body |> Defr.Inject.convert_do_block()
-
-    quote do
-      @defr_funs unquote(fa)
-      defp unquote(head) do
-        unquote(do_block)
       end
     end
   end

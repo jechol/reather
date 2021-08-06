@@ -1,14 +1,5 @@
 defmodule Defr.Inject do
   @moduledoc false
-
-  defmacro __before_compile__(_env) do
-    quote do
-      def __defr_funs__ do
-        @defr_funs
-      end
-    end
-  end
-
   def convert_do_block({:__block__, ctx, exprs}) do
     build_do_block(ctx, exprs |> Enum.take(Enum.count(exprs) - 1), exprs |> List.last())
   end
