@@ -1,4 +1,4 @@
-defmodule Defr.RunTest do
+defmodule Defr.InjectTest do
   use ExUnit.Case, async: true
   use Defr
   alias Algae.Reader
@@ -21,7 +21,7 @@ defmodule Defr.RunTest do
     end
   end
 
-  test "import" do
+  test "inject" do
     assert 1 == Target.top([0, 1], 1) |> Reader.run(%{})
 
     assert :imported_func ==
