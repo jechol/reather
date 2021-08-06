@@ -46,7 +46,7 @@ defmodule Defr do
 
   defmacro run(reader) do
     quote do
-      unquote(reader) |> Algae.Reader.run(var!(deps))
+      unquote(reader) |> Algae.Reader.run(var!(ask_ret))
     end
     |> trace()
   end
@@ -59,7 +59,7 @@ defmodule Defr do
       Defr.Runner.call_remote(
         {unquote(mod), unquote(name), unquote(arity)},
         unquote(args),
-        var!(deps)
+        var!(ask_ret)
       )
     end
     |> trace()
@@ -78,7 +78,7 @@ defmodule Defr do
           {__MODULE__, unquote(name), unquote(arity)},
           fn -> unquote(local_call) end,
           unquote(args),
-          var!(deps)
+          var!(ask_ret)
         )
       end
     else
@@ -142,10 +142,10 @@ defmodule Defr do
     monad_body =
       [
         quote do
-          var!(deps) <- Algae.Reader.ask()
+          var!(ask_ret) <- Algae.Reader.ask()
         end,
         quote do
-          let _ = var!(deps)
+          let _ = var!(ask_ret)
         end
         | except_last
       ] ++

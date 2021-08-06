@@ -12,7 +12,7 @@ defmodule Defr.Mock do
           [
             Macro.generate_arguments(a, __MODULE__),
             quote do
-              Reader.new(fn _deps -> unquote(v) end)
+              Reader.new(fn _ask_ret -> unquote(v) end)
             end
           ]}
        ]}
