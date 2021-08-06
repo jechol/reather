@@ -176,7 +176,8 @@ defmodule Defr do
     ast
     |> tap(fn ast ->
       if @trace do
-        ast |> Macro.to_string() |> IO.puts()
+        ast |> Macro.to_string()
+        # |> IO.puts()
       end
     end)
   end

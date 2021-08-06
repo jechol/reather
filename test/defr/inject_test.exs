@@ -8,28 +8,32 @@ defmodule Defr.InjectTest do
 
     import Enum, only: [at: 2]
 
-    defr top(list, pos) do
-      middle(list, pos) |> run()
+    defr top(list) do
+      middle(list |> List.flatten() |> inject()) |> run()
     end
 
-    defr middle(list, pos) do
-      bottom(list, pos) |> inject() |> run()
+    defr middle(list) do
+      bottom(list) |> inject() |> run()
     end
 
-    defrp bottom(list, pos) do
-      let _ = &at/2
+    defrp bottom(list) do
+      let(_ = &at/2)
+      %{pos: pos} <- ask()
       at(list, pos) |> inject()
     end
   end
 
   test "inject" do
-    assert 1 == Target.top([0, 1], 1) |> Reader.run(%{})
+    assert 1 == Target.top([[0], 1]) |> Reader.run(%{pos: 1})
+
+    assert 20 ==
+             Target.top([[0], 1]) |> Reader.run(mock(%{&List.flatten/1 => [10, 20, 30], pos: 1}))
 
     assert :imported_func ==
-             Target.top([0, 1], 1) |> Reader.run(mock(%{&Enum.at/2 => :imported_func}))
+             Target.top([[0], 1]) |> Reader.run(mock(%{&Enum.at/2 => :imported_func, pos: 1}))
 
     assert :private_func ==
-             Target.top([0, 1], 1)
-             |> Reader.run(mock(%{&Target.bottom/2 => :private_func}))
+             Target.top([[0], 1])
+             |> Reader.run(mock(%{&Target.bottom/1 => :private_func}))
   end
 end

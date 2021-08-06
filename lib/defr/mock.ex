@@ -29,6 +29,10 @@ defmodule Defr.Mock do
     {capture, value}
   end
 
+  def decorate_with_fn({k, v}) do
+    {k, v}
+  end
+
   def select({m, f, a}, const_fn, reader_fn) do
     if is_defr_fun?({m, f, a}) do
       reader_fn
