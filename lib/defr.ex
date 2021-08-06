@@ -152,8 +152,10 @@ defmodule Defr do
         [
           quote do
             return(
-              # use Witchcraft
-              unquote(last)
+              (
+                use Witchcraft
+                unquote(last)
+              )
             )
           end
         ]

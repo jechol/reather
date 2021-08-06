@@ -8,7 +8,7 @@ defmodule Defr.NestedMonadTest do
     use Defr
 
     defr target() do
-      monad %Right{} do
+      chain do
         n <- get_number() |> inject()
         n
       end
