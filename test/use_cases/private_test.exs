@@ -15,7 +15,7 @@ defmodule Defr.PrivateTest do
     end
   end
 
-  test "import" do
+  test "private" do
     assert 1 == Target.target([0, 1], 1) |> Reader.run(%{})
     assert 100 == Target.target([0, 1], 1) |> Reader.run(mock(%{&Target.at/2 => 100}))
   end
