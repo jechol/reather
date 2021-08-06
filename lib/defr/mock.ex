@@ -19,7 +19,7 @@ defmodule Defr.Mock do
 
     value =
       quote do
-        Defr.Mock.wrap_if_reader(
+        Defr.Mock.select(
           {unquote(m), unquote(f), unquote(a)},
           unquote(const_fn),
           unquote(reader_fn)
@@ -29,7 +29,7 @@ defmodule Defr.Mock do
     {capture, value}
   end
 
-  def wrap_if_reader({m, f, a}, const_fn, reader_fn) do
+  def select({m, f, a}, const_fn, reader_fn) do
     if is_defr_fun?({m, f, a}) do
       reader_fn
     else

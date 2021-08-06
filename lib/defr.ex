@@ -6,7 +6,7 @@ defmodule Defr do
       import Defr, only: :macros
 
       Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
-      @before_compile unquote(Defr)
+      @before_compile Defr
     end
   end
 
@@ -20,7 +20,7 @@ defmodule Defr do
 
   defmacro defr(head, do: body) do
     fa = get_fa(head)
-    do_block = body |> Defr.Inject.convert_do_block()
+    do_block = body |> convert_do_block()
 
     quote do
       @defr_funs unquote(fa)
@@ -32,7 +32,7 @@ defmodule Defr do
 
   defmacro defrp(head, do: body) do
     fa = get_fa(head)
-    do_block = body |> Defr.Inject.convert_do_block()
+    do_block = body |> convert_do_block()
 
     quote do
       @defr_funs unquote(fa)
@@ -120,5 +120,41 @@ defmodule Defr do
 
   defp get_fa({name, _, _}) do
     {name, 0}
+  end
+
+  defp convert_do_block({:__block__, ctx, exprs}) do
+    build_do_block(ctx, exprs |> Enum.take(Enum.count(exprs) - 1), exprs |> List.last())
+  end
+
+  defp convert_do_block({_, ctx, _} = expr) do
+    build_do_block(ctx, [], expr)
+  end
+
+  # Private
+
+  defp build_do_block(ctx, except_last, last) do
+    monad_body =
+      [
+        quote do
+          var!(deps) <- Algae.Reader.ask()
+        end,
+        quote do
+          let _ = var!(deps)
+        end
+        | except_last
+      ] ++
+        [
+          quote do
+            return(unquote(last))
+          end
+        ]
+
+    quote do
+      use Witchcraft.Monad
+
+      monad %Algae.Reader{} do
+        unquote({:__block__, ctx, monad_body})
+      end
+    end
   end
 end
