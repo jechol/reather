@@ -4,9 +4,9 @@ defmodule Defr do
 
     if function == nil do
       quote do
-        import Defr, only: :macros
-        use Witchcraft, unquote(opts)
+        use Witchcraft, override_kernel: false
         import Algae.Reader, only: [ask: 0, ask: 1]
+        import Defr, only: :macros
 
         Module.register_attribute(__MODULE__, :defr_funs, accumulate: true)
         @before_compile unquote(Defr.Inject)
@@ -21,6 +21,7 @@ defmodule Defr do
     quote do
       unquote(reader) |> Algae.Reader.run(var!(deps))
     end
+    |> tap(fn ast -> ast |> Macro.to_string() |> IO.puts() end)
   end
 
   defmacro inject({{:., _, [mod, name]}, _, args})
@@ -34,7 +35,7 @@ defmodule Defr do
         var!(deps)
       )
     end
-    |> IO.inspect(label: "inject")
+    |> tap(fn ast -> ast |> Macro.to_string() |> IO.puts() end)
   end
 
   defmacro inject({name, _, args} = local_call)
@@ -49,7 +50,7 @@ defmodule Defr do
         var!(deps)
       )
     end
-    |> IO.inspect(label: "inject")
+    |> tap(fn ast -> ast |> Macro.to_string() |> IO.puts() end)
   end
 
   defmacro inject(other) do

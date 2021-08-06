@@ -21,7 +21,12 @@ defmodule Defr.NestedReaderTest do
     defstruct [:id, :pw_hash]
 
     defr get_by_id(user_id) do
+      let user_id = noop(user_id) |> inject() |> run()
       Repo.get(__MODULE__, user_id) |> inject()
+    end
+
+    defr noop(v) do
+      v
     end
   end
 
