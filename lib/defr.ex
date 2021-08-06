@@ -48,6 +48,7 @@ defmodule Defr do
     quote do
       unquote(reader) |> Algae.Reader.run(var!(deps))
     end
+    |> trace()
   end
 
   defmacro inject({{:., _, [mod, name]}, _, args})
@@ -61,6 +62,7 @@ defmodule Defr do
         var!(deps)
       )
     end
+    |> trace()
   end
 
   defmacro inject({name, _, args} = local_call)
@@ -87,12 +89,14 @@ defmodule Defr do
         unquote(mod_ast).unquote(name)(unquote_splicing(args)) |> Defr.inject()
       end
     end
+    |> trace()
   end
 
   defmacro mock({:%{}, context, mocks}) do
     alias Defr.Mock
 
     {:%{}, context, mocks |> Enum.map(&Mock.decorate_with_fn/1)}
+    |> trace()
   end
 
   # Private
@@ -138,9 +142,6 @@ defmodule Defr do
     monad_body =
       [
         quote do
-          use Witchcraft
-        end,
-        quote do
           var!(deps) <- Algae.Reader.ask()
         end,
         quote do
@@ -150,7 +151,10 @@ defmodule Defr do
       ] ++
         [
           quote do
-            return(unquote(last))
+            return(
+              # use Witchcraft
+              unquote(last)
+            )
           end
         ]
 
