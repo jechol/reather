@@ -19,7 +19,7 @@ defmodule Defr do
   end
 
   defmacro defr(head, do: body) do
-    fa = Defr.Inject.get_fa(head)
+    fa = get_fa(head)
     do_block = body |> Defr.Inject.convert_do_block()
 
     quote do
@@ -31,7 +31,7 @@ defmodule Defr do
   end
 
   defmacro defrp(head, do: body) do
-    fa = Defr.Inject.get_fa(head)
+    fa = get_fa(head)
     do_block = body |> Defr.Inject.convert_do_block()
 
     quote do
@@ -108,5 +108,17 @@ defmodule Defr do
     else
       caller_mod
     end
+  end
+
+  defp get_fa({:when, _, [name_args, _when_cond]}) do
+    get_fa(name_args)
+  end
+
+  defp get_fa({name, _, args}) when is_list(args) do
+    {name, args |> Enum.count()}
+  end
+
+  defp get_fa({name, _, _}) do
+    {name, 0}
   end
 end

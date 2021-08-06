@@ -8,6 +8,8 @@ defmodule Defr.Inject do
     build_do_block(ctx, [], expr)
   end
 
+  # Private
+
   defp build_do_block(ctx, except_last, last) do
     monad_body =
       [
@@ -32,17 +34,5 @@ defmodule Defr.Inject do
         unquote({:__block__, ctx, monad_body})
       end
     end
-  end
-
-  def get_fa({:when, _, [name_args, _when_cond]}) do
-    get_fa(name_args)
-  end
-
-  def get_fa({name, _, args}) when is_list(args) do
-    {name, args |> Enum.count()}
-  end
-
-  def get_fa({name, _, _}) do
-    {name, 0}
   end
 end
