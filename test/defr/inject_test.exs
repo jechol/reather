@@ -1,5 +1,5 @@
 defmodule Defr.InjectTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Defr
   alias Algae.Reader
 

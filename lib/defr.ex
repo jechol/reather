@@ -28,6 +28,7 @@ defmodule Defr do
         unquote(do_block)
       end
     end
+    |> trace()
   end
 
   defmacro defrp(head, do: body) do
@@ -40,6 +41,7 @@ defmodule Defr do
         unquote(do_block)
       end
     end
+    |> trace()
   end
 
   defmacro run(reader) do
@@ -136,6 +138,9 @@ defmodule Defr do
     monad_body =
       [
         quote do
+          use Witchcraft
+        end,
+        quote do
           var!(deps) <- Algae.Reader.ask()
         end,
         quote do
@@ -150,11 +155,20 @@ defmodule Defr do
         ]
 
     quote do
-      use Witchcraft.Monad
+      use Witchcraft
 
       monad %Algae.Reader{} do
         unquote({:__block__, ctx, monad_body})
       end
     end
+  end
+
+  defp trace(ast) do
+    ast
+    |> tap(fn ast ->
+      if Application.get_env(:defr, :trace, false) do
+        ast |> Macro.to_string() |> IO.puts()
+      end
+    end)
   end
 end
