@@ -30,17 +30,16 @@ defmodule Target do
   import Enum, only: [at: 2]
 
   defr top(list) do
-    middle(list |> List.flatten() |> inject()) |> run()
+    list |> List.flatten() |> inject() |> middle() |> run()
   end
 
   defr middle(list) do
-    bottom(list) |> inject() |> run()
+    list |> bottom() |> inject() |> run()
   end
 
   defrp bottom(list) do
-    let(_ = &at/2)
     %{pos: pos} <- ask()
-    at(list, pos) |> inject()
+    list |> at(pos) |> inject()
   end
 end
 ```
@@ -51,8 +50,12 @@ becomes (simplified for clarity)
 defmodule Target do
   def top(list)  do
     monad(%Algae.Reader{}) do
+      env <- Algae.Reader.ask()
       return(
-        middle(list |> List.flatten() |> inject()) |> run()
+        list
+        |> Map.get(env, &List.flatten/1, &List.flatten/1).()
+        |> middle()
+        |> Reader.run(env)
       )
     end
   end
@@ -61,7 +64,9 @@ defmodule Target do
     monad %Algae.Reader{}  do
       env <- Algae.Reader.ask()
       return(
-        Map.get(env, &Target.bottom/1, &Target.bottom/1).(list) |> Reader.run(env)
+        list
+        |> Map.get(env, &Target.bottom/1, &Target.bottom/1).()
+        |> Reader.run(env)
       )
     end
   end
@@ -71,7 +76,8 @@ defmodule Target do
       env <- Algae.Reader.ask()
       %{pos: pos} <- ask()
       return(
-        Map.get(env, Enum.at/2, Enum.at/2).(list, pos)
+        list
+        |> Map.get(env, Enum.at/2, Enum.at/2).(pos)
       )
     end
   end
