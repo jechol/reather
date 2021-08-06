@@ -24,28 +24,23 @@ locals_without_parens: [defr: 2]
 ## `defr` transformation
 
 ```elixir
-defmodule Password do
-  def validate(pw, pw_hash) do
-    :crypto.hash(:sha3_256, pw) == pw_hash
-  end
-end
-
-defmodule User do
+defmodule Target do
   use Defr
 
-  defstruct [:id, :pw_hash]
+  import Enum, only: [at: 2]
 
-  defr get_by_id(user_id) do
-    Repo.get(__MODULE__, user_id)
+  defr top(list) do
+    middle(list |> List.flatten() |> inject()) |> run()
   end
-end
 
-defmodule Accounts do
-  use Defr
+  defr middle(list) do
+    bottom(list) |> inject() |> run()
+  end
 
-  defr sign_in(user_id, pw) do
-    user = User.get_by_id(user_id)
-    Password.validate(pw, user.pw_hash)
+  defrp bottom(list) do
+    let(_ = &at/2)
+    %{pos: pos} <- ask()
+    at(list, pos) |> inject()
   end
 end
 ```
@@ -53,38 +48,30 @@ end
 becomes (simplified for clarity)
 
 ```elixir
-defmodule Password do
-  def validate(pw, pw_hash) do
-    :crypto.hash(:sha3_256, pw) == pw_hash
-  end
-end
-
-defmodule User do
-  use Defr
-
-  defstruct [:id, :pw_hash]
-
-  def get_by_id(user_id) do
-    monad %Reader{} do
-      deps <- ask()
-      return (
-        Map.get(deps, &Repo.get/2, &Repo.get/2).(__MODULE__, user_id)
+defmodule Target do
+  def top(list)  do
+    monad(%Algae.Reader{}) do
+      return(
+        middle(list |> List.flatten() |> inject()) |> run()
       )
     end
   end
-end
 
-defmodule Accounts do
-  use Defr
+  def middle(list) do
+    monad %Algae.Reader{}  do
+      env <- Algae.Reader.ask()
+      return(
+        Map.get(env, &Target.bottom/1, &Target.bottom/1).(list) |> Reader.run(env)
+      )
+    end
+  end
 
-  def sign_in(user_id, pw) do
-    monad %Reader{} do
-      deps <- ask()
-      return (
-        (
-          user = Map.get(deps, &User.get_by_id/1, &User.get_by_id/1).(user_id) |> Reader.run(deps)
-          Password.validate(pw, user.pw_hash)
-        )
+  defp bottom(list) do
+    monad %Algae.Reader{} do
+      env <- Algae.Reader.ask()
+      %{pos: pos} <- ask()
+      return(
+        Map.get(env, Enum.at/2, Enum.at/2).(list, pos)
       )
     end
   end
@@ -93,49 +80,19 @@ end
 
 ## Test
 
-### Injection normal function
-
 ```elixir
-test "Injecting normal function" do
-  assert true ==
-            Accounts.sign_in(100, "Ju8AufbPr*")
-            |> Reader.run(%{
-              &Repo.get/2 => fn _schema, _user_id ->
-                %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "Ju8AufbPr*")}
-              end
-            })
+test "defr" do
+  assert 1 == Target.top([[0], 1]) |> Reader.run(%{pos: 1})
 
-  # simpilfied with `mock`
-  assert true ==
-            Accounts.sign_in(100, "hello")
-            |> Reader.run(
-              mock(%{&Repo.get/2 => %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "hello")}})
-            )
-end
-```
+  assert 20 ==
+            Target.top([[0], 1]) |> Reader.run(mock(%{&List.flatten/1 => [10, 20, 30], pos: 1}))
 
-### Injection reader function
+  assert :imported_func ==
+            Target.top([[0], 1]) |> Reader.run(mock(%{&Enum.at/2 => :imported_func, pos: 1}))
 
-```elixir
-test "Injecting reader function" do
-  assert true ==
-            Accounts.sign_in(100, "Ju8AufbPr*")
-            |> Reader.run(%{
-              &User.get_by_id/1 => fn _user_id ->
-                Reader.new(fn _env ->
-                  %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "Ju8AufbPr*")}
-                end)
-              end
-            })
-
-  # simpilfied with `mock`
-  assert true ==
-            Accounts.sign_in(100, "hello")
-            |> Reader.run(
-              mock(%{
-                &User.get_by_id/1 => %User{id: 100, pw_hash: :crypto.hash(:sha3_256, "hello")}
-              })
-            )
+  assert :private_func ==
+            Target.top([[0], 1])
+            |> Reader.run(mock(%{&Target.bottom/1 => :private_func}))
 end
 ```
 
