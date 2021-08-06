@@ -73,23 +73,13 @@ defmodule Defr do
     %Macro.Env{module: caller_mod, functions: mod_funs} = __CALLER__
     mod = find_func_module({name, arity}, mod_funs, caller_mod)
 
-    if mod == caller_mod do
-      # Local call
-      quote do
-        Defr.Runner.call_local(
-          {__MODULE__, unquote(name), unquote(arity)},
-          fn -> unquote(local_call) end,
-          unquote(args),
-          var!(ask_ret)
-        )
-      end
-    else
-      # Remote call
-      mod_ast = quote do: unquote(mod)
-
-      quote do
-        unquote(mod_ast).unquote(name)(unquote_splicing(args)) |> Defr.inject()
-      end
+    quote do
+      Defr.Runner.call_local(
+        {unquote(mod), unquote(name), unquote(arity)},
+        fn -> unquote(local_call) end,
+        unquote(args),
+        var!(ask_ret)
+      )
     end
     |> trace()
   end
