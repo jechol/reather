@@ -11,7 +11,7 @@ in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:defr, "~> 0.1"}]
+  [{:defr, "~> 0.2"}]
 end
 ```
 
@@ -74,10 +74,10 @@ defmodule Target do
   defp bottom(list) do
     monad %Algae.Reader{} do
       env <- Algae.Reader.ask()
-      %{pos: pos} <- ask()
+      %{pos: pos} <- Algae.Reader.ask()
       return(
         list
-        |> Map.get(env, Enum.at/2, Enum.at/2).(pos)
+        |> Map.get(env, &Enum.at/2, &Enum.at/2).(pos)
       )
     end
   end
