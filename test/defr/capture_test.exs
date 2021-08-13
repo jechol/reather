@@ -6,7 +6,7 @@ defmodule Defr.CaptureTest do
   defmodule Target do
     use Defr
 
-    def local_first(list) do
+    defp local_first(list) do
       List.first(list)
     end
 

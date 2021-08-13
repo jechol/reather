@@ -53,41 +53,36 @@ defmodule Defr do
     |> trace()
   end
 
+  # Capture
+  defmacro inject(
+             {:&, _, [{:/, _, [{{:., _, [mod, name]}, [{:no_parens, true}, _], []}, arity]}]}
+           ) do
+    quote do
+      fun = :erlang.make_fun(unquote(mod), unquote(name), unquote(arity))
+      Map.get(var!(ask_ret), fun, fun)
+    end
+    |> trace()
+  end
+
+  defmacro inject({:&, _, [{:/, _, [{name, _, _}, arity]}]} = ast) do
+    %Macro.Env{module: caller_mod, functions: mod_funs} = __CALLER__
+    mod = find_func_module({name, arity}, mod_funs, caller_mod)
+
+    quote do
+      fun = :erlang.make_fun(unquote(mod), unquote(name), unquote(arity))
+      Map.get(var!(ask_ret), fun, unquote(ast))
+    end
+    |> trace()
+  end
+
+  # Call
   defmacro inject({{:., _, [mod, name]}, _, args})
            when is_atom(name) and is_list(args) do
     arity = Enum.count(args)
 
     quote do
-      Defr.Runner.call_remote(
-        {unquote(mod), unquote(name), unquote(arity)},
-        unquote(args),
-        var!(ask_ret)
-      )
-    end
-    |> trace()
-  end
-
-  defmacro inject(
-             {:&, _, [{:/, _, [{{:., _, [mod, name]}, [{:no_parens, true}, _], []}, arity]}]}
-           ) do
-    quote do
-      Defr.Runner.select_remote_fun(
-        {unquote(mod), unquote(name), unquote(arity)},
-        var!(ask_ret)
-      )
-    end
-    |> trace()
-  end
-
-  defmacro inject({:&, _, [{:/, _, [{name, _, _}, arity]}]}) do
-    %Macro.Env{module: caller_mod, functions: mod_funs} = __CALLER__
-    mod = find_func_module({name, arity}, mod_funs, caller_mod)
-
-    quote do
-      Defr.Runner.select_local_func(
-        {unquote(mod), unquote(name), unquote(arity)},
-        var!(ask_ret)
-      )
+      fun = :erlang.make_fun(unquote(mod), unquote(name), unquote(arity))
+      Map.get(var!(ask_ret), fun, fun) |> :erlang.apply(unquote(args))
     end
     |> trace()
   end
@@ -99,12 +94,12 @@ defmodule Defr do
     mod = find_func_module({name, arity}, mod_funs, caller_mod)
 
     quote do
-      Defr.Runner.call_local(
-        {unquote(mod), unquote(name), unquote(arity)},
-        fn -> unquote(local_call) end,
-        unquote(args),
-        var!(ask_ret)
-      )
+      fun = :erlang.make_fun(unquote(mod), unquote(name), unquote(arity))
+
+      case Map.fetch(var!(ask_ret), fun) do
+        {:ok, mock} -> :erlang.apply(mock, unquote(args))
+        :error -> unquote(local_call)
+      end
     end
     |> trace()
   end
