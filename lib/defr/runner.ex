@@ -1,7 +1,6 @@
 defmodule Defr.Runner do
-  def call_remote({m, f, a}, args, ask_ret) do
-    fun = :erlang.make_fun(m, f, a)
-    Map.get(ask_ret, fun, fun) |> :erlang.apply(args)
+  def call_remote(mfa, args, ask_ret) do
+    select_remote_fun(mfa, ask_ret) |> :erlang.apply(args)
   end
 
   def call_local({m, f, a}, original, args, ask_ret) do
@@ -11,5 +10,10 @@ defmodule Defr.Runner do
       {:ok, mock} -> :erlang.apply(mock, args)
       :error -> original.()
     end
+  end
+
+  def select_remote_fun({m, f, a}, ask_ret) do
+    fun = :erlang.make_fun(m, f, a)
+    Map.get(ask_ret, fun, fun)
   end
 end

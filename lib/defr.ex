@@ -67,6 +67,23 @@ defmodule Defr do
     |> trace()
   end
 
+  defmacro inject(
+             {:&, _, [{:/, _, [{{:., _, [mod, name]}, [{:no_parens, true}, _], []}, arity]}]}
+           ) do
+    quote do
+      Defr.Runner.select_remote_fun(
+        {unquote(mod), unquote(name), unquote(arity)},
+        var!(ask_ret)
+      )
+    end
+    |> trace()
+  end
+
+  # defmacro inject(
+  #            {:&, ctx1, [{:/, ctx2, [{:local_first, _, Elixir}, 1]}]}
+  #          ) do
+  # end
+
   defmacro inject({name, _, args} = local_call)
            when is_atom(name) and is_list(args) do
     arity = Enum.count(args)
@@ -82,6 +99,10 @@ defmodule Defr do
       )
     end
     |> trace()
+  end
+
+  defmacro inject(ast) do
+    ast |> IO.inspect()
   end
 
   defmacro mock({:%{}, context, mocks}) do
