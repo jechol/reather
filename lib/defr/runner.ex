@@ -16,4 +16,10 @@ defmodule Defr.Runner do
     fun = :erlang.make_fun(m, f, a)
     Map.get(ask_ret, fun, fun)
   end
+
+  def select_local_func({m, f, a}, ask_ret) do
+    {m, f, a}
+    fun = :erlang.make_fun(m, f, a)
+    Map.get(ask_ret, fun, fun)
+  end
 end

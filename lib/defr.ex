@@ -79,10 +79,18 @@ defmodule Defr do
     |> trace()
   end
 
-  # defmacro inject(
-  #            {:&, ctx1, [{:/, ctx2, [{:local_first, _, Elixir}, 1]}]}
-  #          ) do
-  # end
+  defmacro inject({:&, _, [{:/, _, [{name, _, _}, arity]}]}) do
+    %Macro.Env{module: caller_mod, functions: mod_funs} = __CALLER__
+    mod = find_func_module({name, arity}, mod_funs, caller_mod)
+
+    quote do
+      Defr.Runner.select_local_func(
+        {unquote(mod), unquote(name), unquote(arity)},
+        var!(ask_ret)
+      )
+    end
+    |> trace()
+  end
 
   defmacro inject({name, _, args} = local_call)
            when is_atom(name) and is_list(args) do
@@ -99,10 +107,6 @@ defmodule Defr do
       )
     end
     |> trace()
-  end
-
-  defmacro inject(ast) do
-    ast |> IO.inspect()
   end
 
   defmacro mock({:%{}, context, mocks}) do
