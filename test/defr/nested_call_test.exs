@@ -1,4 +1,4 @@
-defmodule Defr.InjectTest do
+defmodule Defr.NestedCallTest do
   use ExUnit.Case, async: false
   use Defr
   alias Algae.Reader
