@@ -1,7 +1,8 @@
 let
   nixpkgs = import (fetchTarball {
-    url = "https://github.com/trevorite/nixpkgs/archive/elixir_1_12_1.tar.gz";
-    sha256 = "sha256:0hjgc5fsk43ffgzb6g65cq1n66jbq04cyy2i72r0myqggijjlpmq";
+    url =
+      "https://github.com/trevorite/nixpkgs/archive/otp23-elixir1.12.tar.gz";
+    sha256 = "sha256:1r9qxh8ar3yyfxy36rwgxrf228q5s31s94swp1gpn80090s58v4x";
   }) { };
   platform = if nixpkgs.stdenv.isDarwin then [
     nixpkgs.darwin.apple_sdk.frameworks.CoreServices
@@ -11,5 +12,5 @@ let
   else
     [ ];
 in nixpkgs.mkShell {
-  buildInputs = [ nixpkgs.erlang nixpkgs.elixir ] ++ platform;
+  buildInputs = [ nixpkgs.erlang nixpkgs.elixir_1_11 ] ++ platform;
 }

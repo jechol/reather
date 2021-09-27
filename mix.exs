@@ -7,7 +7,7 @@ defmodule Defr.MixProject do
     [
       app: :defr,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),

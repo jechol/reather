@@ -158,7 +158,7 @@ defmodule Defr do
           var!(ask_ret) <- Algae.Reader.ask()
         end,
         quote do
-          let _ = var!(ask_ret)
+          let(_ = var!(ask_ret))
         end
         | except_last
       ] ++
@@ -184,13 +184,11 @@ defmodule Defr do
 
   @trace Application.compile_env(:defr, :trace, false)
   defp trace(ast) do
-    ast
-    |> tap(fn ast ->
-      if @trace do
-        ast
-        |> Macro.to_string()
-        |> IO.puts()
-      end
-    end)
+    if @trace do
+      ast |> Macro.to_string() |> IO.puts()
+      ast
+    else
+      ast
+    end
   end
 end
