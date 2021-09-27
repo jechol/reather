@@ -19,6 +19,8 @@ defmodule Defr.Mock do
 
     value =
       quote do
+        Code.ensure_loaded!(unquote(m))
+
         Defr.Mock.select(
           {unquote(m), unquote(f), unquote(a)},
           unquote(const_fn),
