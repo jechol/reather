@@ -32,7 +32,7 @@ defmodule Defr.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.23.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.25.0", only: :dev, runtime: false},
       {:algae, git: "https://github.com/witchcrafters/algae.git", override: true},
       {:quark, git: "https://github.com/witchcrafters/quark.git", override: true},
       {:type_class, git: "https://github.com/witchcrafters/type_class.git", override: true},
