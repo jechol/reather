@@ -7,6 +7,10 @@ defmodule Defr.ReaderEitherTest do
   defmodule Target do
     use Defr
 
+    defr do_div(a, b) do
+      Right.new(a / b)
+    end
+
     defr div_10_by(divisor) do
       chain do
         :ok <-
@@ -15,7 +19,9 @@ defmodule Defr.ReaderEitherTest do
             _ -> Right.new(:ok)
           end
 
-        Right.new(10 / divisor)
+        result <- do_div(10, divisor) |> run()
+
+        result |> Right.new()
       end
       |> case do
         %Left{left: :div_by_zero} -> Right.new(-1)
