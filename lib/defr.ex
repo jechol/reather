@@ -59,12 +59,7 @@ defmodule Defr do
   defmacro run(reader, nested_env \\ Macro.escape(%{})) do
     quote do
       env = Map.merge(unquote(nested_env), var!(ask_ret))
-
-      unquote(reader)
-      |> case do
-        %Algae.Reader{} = reader -> reader |> Algae.Reader.run(env)
-        non_reader -> non_reader
-      end
+      unquote(reader) |> Algae.Reader.run(env)
     end
     |> trace()
   end
