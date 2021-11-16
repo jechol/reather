@@ -46,6 +46,16 @@ defmodule Defr do
     |> trace()
   end
 
+  defmacro readerfy({:fn, env, clauses}) do
+    injected =
+      clauses
+      |> Enum.map(fn {:->, env, [args, body]} ->
+        {:->, env, [args, body |> convert_do_block()]}
+      end)
+
+    {:fn, env, injected}
+  end
+
   defmacro run(reader, nested_env \\ Macro.escape(%{})) do
     quote do
       env = Map.merge(unquote(nested_env), var!(ask_ret))
