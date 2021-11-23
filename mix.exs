@@ -33,11 +33,11 @@ defmodule Defr.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.25.0", only: :dev, runtime: false},
-      {:algae, git: "https://github.com/witchcrafters/algae.git", override: true},
-      {:quark, git: "https://github.com/witchcrafters/quark.git", override: true},
-      {:type_class, git: "https://github.com/witchcrafters/type_class.git", override: true},
+      {:algae, git: "https://github.com/jechol/algae.git", override: true},
+      {:quark, git: "https://github.com/jechol/quark.git", override: true},
+      {:type_class, git: "https://github.com/jechol/type_class.git", override: true},
       # Maintain until PR is merged. (https://github.com/witchcrafters/witchcraft/pull/83)
-      {:witchcraft, git: "https://github.com/trevorite/witchcraft.git", override: true}
+      {:witchcraft, git: "https://github.com/jechol/witchcraft.git", override: true}
     ]
   end
 
