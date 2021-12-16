@@ -159,6 +159,10 @@ defmodule Defr do
     build_do_block(ctx, [], expr)
   end
 
+  defp convert_do_block(raw_value) do
+    build_do_block([], [], raw_value)
+  end
+
   # Private
 
   defp build_do_block(ctx, except_last, last) do

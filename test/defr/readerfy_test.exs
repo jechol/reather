@@ -18,4 +18,10 @@ defmodule Defr.ReaderfyTest do
     assert 6 == f.(1, 2) |> Reader.run(3)
     assert 6 == f.(<<1>>, <<2>>) |> Reader.run(<<3>>)
   end
+
+  test "readefy with raw_value" do
+    g = readerfy(fn _ -> [] end)
+
+    assert [] == g.(nil) |> Reader.run(%{})
+  end
 end
