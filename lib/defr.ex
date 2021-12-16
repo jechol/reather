@@ -155,12 +155,8 @@ defmodule Defr do
     build_do_block(ctx, exprs |> Enum.take(Enum.count(exprs) - 1), exprs |> List.last())
   end
 
-  defp convert_do_block({_, ctx, _} = expr) do
-    build_do_block(ctx, [], expr)
-  end
-
-  defp convert_do_block(raw_value) do
-    build_do_block([], [], raw_value)
+  defp convert_do_block(expr) do
+    build_do_block([], [], expr)
   end
 
   # Private
