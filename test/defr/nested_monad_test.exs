@@ -8,6 +8,8 @@ defmodule Defr.NestedMonadTest do
     use Defr
 
     defr target() do
+      let _ = Process.sleep(100)
+
       chain do
         n <- get_number() |> inject()
         n

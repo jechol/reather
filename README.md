@@ -39,6 +39,7 @@ defmodule Target do
 
   defrp bottom(list) do
     %{pos: pos} <- ask()
+    let _ = Process.sleep(100) # Use `let` to call non-reader function.
     list |> at(pos) |> inject()
   end
 end
@@ -63,6 +64,7 @@ defmodule Target do
   def middle(list) do
     monad %Algae.Reader{}  do
       env <- Algae.Reader.ask()
+      let _ = Process.sleep(100)
       return(
         list
         |> Map.get(env, &Target.bottom/1, &Target.bottom/1).()
