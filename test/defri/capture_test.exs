@@ -11,27 +11,28 @@ defmodule Defri.CaptureTest do
     end
 
     defri external_capture() do
-      :erlang.apply((&List.first/1) |> inject(), [[1, 2]])
+      :erlang.apply((&List.first/1) |> inject(), [[1, 2]]) |> Right.new()
     end
 
     defri local_capture() do
-      :erlang.apply((&local_first/1) |> inject(), [[100, 200]])
+      :erlang.apply((&local_first/1) |> inject(), [[100, 200]]) |> Right.new()
     end
   end
 
   test "external" do
-    assert 1 ==
-             Target.external_capture() |> Rither.run(%{})
+    assert %Right{right: 1} ==
+             Target.external_capture() |> IO.inspect() |> Rither.run(%{})
 
-    assert :external ==
-             Target.external_capture() |> Rither.run(mock(%{&List.first/1 => :external}))
+    assert %Right{right: :external} ==
+             Target.external_capture()
+             |> Rither.run(mock(%{&List.first/1 => :external}))
   end
 
   test "local" do
-    assert 100 ==
+    assert %Right{right: 100} ==
              Target.local_capture() |> Rither.run(%{})
 
-    assert :local ==
+    assert %Right{right: :local} ==
              Target.local_capture() |> Rither.run(mock(%{&Target.local_first/1 => :local}))
   end
 end

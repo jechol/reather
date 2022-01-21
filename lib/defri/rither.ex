@@ -10,7 +10,7 @@ defmodule Defri.Rither do
   def left(error), do: new(fn _ -> Left.new(error) end)
   def right(value), do: new(fn _ -> Right.new(value) end)
 
-  def run(%Rither{rither: fun}, arg), do: fun.(arg)
+  def run(%Rither{rither: fun}, arg), do: fun.(arg) |> ensure_either()
 
   def ask(), do: Rither.new(fn env -> Right.new(env) end)
 

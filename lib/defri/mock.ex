@@ -3,12 +3,7 @@ defmodule Defri.Mock do
   alias Defri.Rither
   alias Algae.Either.{Left, Right}
 
-  def decorate_with_fn({{:&, _, [{:/, _, [{{:., _, [m, f]}, _, []}, a]}]} = capture, raw_v}) do
-    v =
-      quote do
-        unquote(raw_v) |> Defri.Rither.ensure_either()
-      end
-
+  def decorate_with_fn({{:&, _, [{:/, _, [{{:., _, [m, f]}, _, []}, a]}]} = capture, v}) do
     const_fn = {:fn, [], [{:->, [], [Macro.generate_arguments(a, __MODULE__), v]}]}
 
     reader_fn =
@@ -38,10 +33,7 @@ defmodule Defri.Mock do
   end
 
   def decorate_with_fn({k, v}) do
-    {k,
-     quote do
-       unquote(v) |> Defri.Rither.ensure_either()
-     end}
+    {k, v}
   end
 
   def select({m, f, a}, const_fn, reader_fn) do
