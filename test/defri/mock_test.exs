@@ -1,10 +1,10 @@
-defmodule Defr.MockTest do
+defmodule Defri.MockTest do
   use ExUnit.Case, async: false
-  use Defr
-  alias Algae.Reader
+  use Defri
+  alias Defri.Rither
 
   defmodule Target do
-    use Defr
+    use Defri
 
     defr sum(a, b), do: a + b
   end
@@ -30,8 +30,8 @@ defmodule Defr.MockTest do
 
       assert :erlang.fun_info(f_sum)[:arity] == 2
 
-      assert %Reader{} = f_sum.(10, 20)
-      assert 99 == f_sum.(10, 20) |> Reader.run(%{})
+      assert %Rither{} = f_sum.(10, 20)
+      assert 99 == f_sum.(10, 20) |> Rither.run(%{})
     end
   end
 end

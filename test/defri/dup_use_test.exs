@@ -1,9 +1,9 @@
-defmodule Defr.DupUseTest do
+defmodule Defri.DupUseTest do
   use ExUnit.Case, async: false
-  use Defr
+  use Defri
 
   defmodule Target do
-    use Defr
-    use Defr
+    use Defri
+    use Defri
   end
 end

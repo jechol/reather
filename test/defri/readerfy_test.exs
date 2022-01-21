@@ -1,7 +1,7 @@
-defmodule Defr.ReaderfyTest do
+defmodule Defri.ReaderfyTest do
   use ExUnit.Case, async: false
-  use Defr
-  alias Algae.Reader
+  use Defri
+  alias Defri.Rither
 
   describe "readerfy" do
     test "multi line" do
@@ -11,7 +11,7 @@ defmodule Defr.ReaderfyTest do
           x + y
         end)
 
-      assert 3 == f.(1, 2) |> Reader.run(%{})
+      assert 3 == f.(1, 2) |> Rither.run(%{})
     end
 
     test "multi clauses" do
@@ -26,14 +26,14 @@ defmodule Defr.ReaderfyTest do
             x + y + z
         end)
 
-      assert 6 == f.(1, 2) |> Reader.run(3)
-      assert 6 == f.(<<1>>, <<2>>) |> Reader.run(<<3>>)
+      assert 6 == f.(1, 2) |> Rither.run(3)
+      assert 6 == f.(<<1>>, <<2>>) |> Rither.run(<<3>>)
     end
 
     test "raw value" do
       g = readerfy(fn _ -> [] end)
 
-      assert [] == g.(nil) |> Reader.run(nil)
+      assert [] == g.(nil) |> Rither.run(nil)
     end
   end
 end

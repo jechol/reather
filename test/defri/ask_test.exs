@@ -1,10 +1,10 @@
-defmodule Defr.AskTest do
+defmodule Defri.AskTest do
   use ExUnit.Case, async: false
-  use Defr
-  alias Algae.Reader
+  use Defri
+  alias Defri.Rither
 
   defmodule Target do
-    use Defr
+    use Defri
 
     defr single() do
       1 + 1
@@ -18,10 +18,10 @@ defmodule Defr.AskTest do
   end
 
   test "single" do
-    assert 2 == Target.single() |> Reader.run(%{})
+    assert 2 == Target.single() |> Rither.run(%{})
   end
 
   test "multi" do
-    assert 111 == Target.multi() |> Reader.run(%{a: 10, b: 100})
+    assert 111 == Target.multi() |> Rither.run(%{a: 10, b: 100})
   end
 end

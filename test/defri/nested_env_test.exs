@@ -1,10 +1,10 @@
-defmodule Defr.NestedEnvTest do
+defmodule Defri.NestedEnvTest do
   use ExUnit.Case, async: false
-  use Defr
-  alias Algae.Reader
+  use Defri
+  alias Defri.Rither
 
   defmodule Target do
-    use Defr
+    use Defri
 
     defr top(value) do
       middle() |> run(%{value: {:env, value}})
@@ -21,7 +21,7 @@ defmodule Defr.NestedEnvTest do
   end
 
   test "outer env has higher priority" do
-    assert {:env, 10} = Target.top(10) |> Reader.run(%{})
-    assert {:mock, 20} = Target.top(10) |> Reader.run(%{value: {:mock, 20}})
+    assert {:env, 10} = Target.top(10) |> Rither.run(%{})
+    assert {:mock, 20} = Target.top(10) |> Rither.run(%{value: {:mock, 20}})
   end
 end

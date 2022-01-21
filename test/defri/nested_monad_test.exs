@@ -1,11 +1,11 @@
-defmodule Defr.NestedMonadTest do
+defmodule Defri.NestedMonadTest do
   use ExUnit.Case, async: false
-  use Defr
-  alias Algae.Reader
+  use Defri
+  alias Defri.Rither
   alias Algae.Either.Right
 
   defmodule Target do
-    use Defr
+    use Defri
 
     defr target() do
       let _ = Process.sleep(100)
@@ -20,7 +20,7 @@ defmodule Defr.NestedMonadTest do
   end
 
   test "witchcraft" do
-    assert 1 == Target.target() |> Reader.run(%{})
-    assert 100 == Target.target() |> Reader.run(mock(%{&Target.get_number/0 => Right.new(100)}))
+    assert 1 == Target.target() |> Rither.run(%{})
+    assert 100 == Target.target() |> Rither.run(mock(%{&Target.get_number/0 => Right.new(100)}))
   end
 end
