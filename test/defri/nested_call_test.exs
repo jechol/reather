@@ -16,23 +16,23 @@ defmodule Defri.NestedCallTest do
       list |> bottom() |> inject() |> run()
     end
 
-    defrp bottom(list) do
+    defrip bottom(list) do
       %{pos: pos} <- ask()
-      at(list, pos) |> inject()
+      at(list, pos) |> inject() |> Right.new()
     end
   end
 
   test "inject" do
-    assert 1 == Target.top([[0], 1]) |> Rither.run(%{pos: 1})
+    assert %Right{right: 1} == Target.top([[0], 1]) |> Rither.run(%{pos: 1})
 
-    assert 20 ==
+    assert %Right{right: 20} ==
              Target.top([[0], 1]) |> Rither.run(mock(%{&List.flatten/1 => [10, 20, 30], pos: 1}))
 
-    assert :imported_func ==
+    assert %Right{right: :imported_func} ==
              Target.top([[0], 1]) |> Rither.run(mock(%{&Enum.at/2 => :imported_func, pos: 1}))
 
-    assert :private_func ==
+    assert %Right{right: :private_func} ==
              Target.top([[0], 1])
-             |> Rither.run(mock(%{&Target.bottom/1 => :private_func}))
+             |> Rither.run(mock(%{&Target.bottom/1 => Right.new(:private_func)}))
   end
 end
