@@ -6,11 +6,11 @@ defmodule Defri.NestedEnvTest do
   defmodule Target do
     use Defri
 
-    defr top(value) do
+    defri top(value) do
       middle() |> run(%{value: {:env, value}})
     end
 
-    defr middle() do
+    defri middle() do
       bottom() |> run()
     end
 

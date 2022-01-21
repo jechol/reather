@@ -6,7 +6,7 @@ defmodule Defri.MockTest do
   defmodule Target do
     use Defri
 
-    defr sum(a, b), do: a + b
+    defri(sum(a, b), do: a + b)
   end
 
   describe "mock" do

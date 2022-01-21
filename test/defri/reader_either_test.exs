@@ -7,11 +7,11 @@ defmodule Defri.ReaderEitherTest do
   defmodule Target do
     use Defri
 
-    defr do_div(a, b) do
+    defri do_div(a, b) do
       Right.new(a / b)
     end
 
-    defr div_10_by(divisor) do
+    defri div_10_by(divisor) do
       chain do
         :ok <-
           case divisor do

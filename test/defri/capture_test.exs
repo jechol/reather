@@ -10,11 +10,11 @@ defmodule Defri.CaptureTest do
       List.first(list)
     end
 
-    defr external_capture() do
+    defri external_capture() do
       :erlang.apply((&List.first/1) |> inject(), [[1, 2]])
     end
 
-    defr local_capture() do
+    defri local_capture() do
       :erlang.apply((&local_first/1) |> inject(), [[100, 200]])
     end
   end

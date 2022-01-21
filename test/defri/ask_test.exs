@@ -6,11 +6,11 @@ defmodule Defri.AskTest do
   defmodule Target do
     use Defri
 
-    defr single() do
+    defri single() do
       1 + 1
     end
 
-    defr multi() do
+    defri multi() do
       %{a: a} <- ask()
       %{b: b} <- ask()
       1 + a + b

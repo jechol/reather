@@ -8,11 +8,11 @@ defmodule Defri.NestedCallTest do
 
     import Enum, only: [at: 2]
 
-    defr top(list) do
+    defri top(list) do
       list |> List.flatten() |> inject() |> middle() |> run()
     end
 
-    defr middle(list) do
+    defri middle(list) do
       list |> bottom() |> inject() |> run()
     end
 

@@ -7,7 +7,7 @@ defmodule Defri.NestedMonadTest do
   defmodule Target do
     use Defri
 
-    defr target() do
+    defri target() do
       let _ = Process.sleep(100)
 
       chain do
