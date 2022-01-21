@@ -117,7 +117,7 @@ defmodule Defri do
   end
 
   defmacro mock({:%{}, context, mocks}) do
-    alias Defr.Mock
+    alias Defri.Mock
 
     {:%{}, context, mocks |> Enum.map(&Mock.decorate_with_fn/1)}
     |> trace()

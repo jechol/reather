@@ -17,9 +17,12 @@ defmodule Defri.Rither do
   def ask(fun) do
     monad %Rither{} do
       env <- ask()
-      return(fun.(env))
+      return(Right.new(fun.(env)))
     end
   end
+
+  def ensure_either(%Left{} = v), do: v
+  def ensure_either(%Right{} = v), do: v
 end
 
 alias Defri.Rither
@@ -31,14 +34,18 @@ definst Witchcraft.Functor, for: Rither do
   @force_type_instance true
   def map(%Rither{rither: inner}, fun) do
     Rither.new(fn env ->
-      inner.(env) |> Witchcraft.Functor.map(fun)
+      case inner.(env) do
+        %Left{} = left -> left
+        %Right{right: value} -> Right.new(fun.(value))
+      end
     end)
   end
 end
 
 definst Witchcraft.Applicative, for: Rither do
   @force_type_instance true
-  def of(_, value), do: Rither.new(fn _env -> value end)
+  def of(_, %Left{} = value), do: Rither.new(fn _env -> value end)
+  def of(_, %Right{} = value), do: Rither.new(fn _env -> value end)
 end
 
 definst Witchcraft.Chain, for: Rither do
