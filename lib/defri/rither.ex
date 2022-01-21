@@ -1,4 +1,4 @@
-defmodule Defr.Rither do
+defmodule Defri.Rither do
   use Witchcraft
   alias __MODULE__
   alias Algae.Either.{Left, Right}
@@ -22,7 +22,7 @@ defmodule Defr.Rither do
   end
 end
 
-alias Defr.Rither
+alias Defri.Rither
 alias Algae.Either.{Left, Right}
 import TypeClass
 use Witchcraft

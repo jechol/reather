@@ -3,7 +3,7 @@ defmodule Rither.RitherTest do
 
   use Witchcraft
   alias Algae.Either.{Left, Right}
-  alias Defr.Rither
+  alias Defri.Rither
 
   test "Rither" do
     sum =
