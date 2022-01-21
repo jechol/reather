@@ -7,13 +7,13 @@ defmodule Defri.AskTest do
     use Defri
 
     defri single() do
-      1 + 1
+      Right.new(1 + 1)
     end
 
     defri multi() do
       %{a: a} <- ask()
       %{b: b} <- ask()
-      1 + a + b
+      Right.new(1 + a + b)
     end
   end
 

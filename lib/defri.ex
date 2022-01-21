@@ -4,6 +4,7 @@ defmodule Defri do
       use Witchcraft, override_kernel: false
       import Defri.Rither, only: [ask: 0, ask: 1]
       import Defri, only: :macros
+      alias Algae.Either.{Left, Right}
 
       unless Module.has_attribute?(__MODULE__, :defri_funs) do
         Module.register_attribute(__MODULE__, :defri_funs, accumulate: true)
