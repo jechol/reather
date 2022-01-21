@@ -38,7 +38,7 @@ end
 
 definst Witchcraft.Applicative, for: Rither do
   @force_type_instance true
-  def of(_, value), do: Rither.right(value)
+  def of(_, value), do: Rither.new(fn _env -> value end)
 end
 
 definst Witchcraft.Chain, for: Rither do
