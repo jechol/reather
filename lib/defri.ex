@@ -116,7 +116,7 @@ defmodule Defri do
   end
 
   defmacro mock({:%{}, context, mocks}) do
-    alias Defri.Mock
+    alias Defr.Mock
 
     {:%{}, context, mocks |> Enum.map(&Mock.decorate_with_fn/1)}
     |> trace()
@@ -192,7 +192,7 @@ defmodule Defri do
     end
   end
 
-  @trace Application.compile_env(:Defri, :trace, false)
+  @trace Application.compile_env(:defr, :trace, false)
   defp trace(ast) do
     if @trace do
       ast |> Macro.to_string() |> IO.puts()
