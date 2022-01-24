@@ -144,26 +144,39 @@ defmodule Reather.Macros do
     {name, 0}
   end
 
-  defp convert_do_block({:__block__, ctx, exprs}) do
-    build_do_block(ctx, exprs)
+  defp convert_do_block({:__block__, ctx, exprs} = expr) do
+    build_do_block(has_inject?(expr), ctx, exprs)
   end
 
   defp convert_do_block(expr) do
-    build_do_block([], [expr])
+    build_do_block(has_inject?(expr), [], [expr])
   end
 
-  # Private
+  defp has_inject?(exprs) do
+    {^exprs, found?} =
+      Macro.prewalk(exprs, false, fn
+        {:inject, _, _} = ast, _ -> {ast, true}
+        _ = ast, found? -> {ast, found?}
+      end)
 
-  defp build_do_block(ctx, exprs) do
-    monad_body = [
-      quote do
-        var!(ask_ret) <- Reather.ask()
-      end,
-      quote do
-        let(_ = var!(ask_ret))
+    found?
+  end
+
+  defp build_do_block(has_inject?, ctx, exprs) do
+    monad_body =
+      if has_inject? do
+        [
+          quote do
+            var!(ask_ret) <- Reather.ask()
+          end,
+          quote do
+            let(_ = var!(ask_ret))
+          end
+          | exprs
+        ]
+      else
+        exprs
       end
-      | exprs
-    ]
 
     quote do
       use Witchcraft
