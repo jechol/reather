@@ -9,7 +9,7 @@ defmodule Reather.NestedMonadTest do
       let _ = Process.sleep(100)
 
       return (monad %Right{} do
-                n <- get_number() |> inject()
+                n <- get_number() |> Reather.inject()
                 n |> Right.new()
               end)
     end
@@ -21,6 +21,7 @@ defmodule Reather.NestedMonadTest do
     assert %Right{right: 1} == Target.target() |> Reather.run(%{})
 
     assert %Right{right: 100} ==
-             Target.target() |> Reather.run(mock(%{&Target.get_number/0 => Right.new(100)}))
+             Target.target()
+             |> Reather.run(Reather.mock(%{&Target.get_number/0 => Right.new(100)}))
   end
 end

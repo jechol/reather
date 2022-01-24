@@ -4,7 +4,7 @@ defmodule Reather.Macros do
       use Witchcraft, override_kernel: false
       alias Algae.Either.{Left, Right}
 
-      import Reather.Macros, only: :macros
+      import Reather.Macros, only: [reather: 2, reatherp: 2]
 
       unless Module.has_attribute?(__MODULE__, :reather_functions) do
         Module.register_attribute(__MODULE__, :reather_functions, accumulate: true)

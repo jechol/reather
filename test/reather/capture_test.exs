@@ -10,11 +10,11 @@ defmodule Reather.CaptureTest do
     end
 
     reather external_capture() do
-      return :erlang.apply((&List.first/1) |> inject(), [[1, 2]]) |> Right.new()
+      return :erlang.apply((&List.first/1) |> Reather.inject(), [[1, 2]]) |> Right.new()
     end
 
     reather local_capture() do
-      return :erlang.apply((&local_first/1) |> inject(), [[100, 200]]) |> Right.new()
+      return :erlang.apply((&local_first/1) |> Reather.inject(), [[100, 200]]) |> Right.new()
     end
   end
 
@@ -24,7 +24,7 @@ defmodule Reather.CaptureTest do
 
     assert %Right{right: :external} ==
              Target.external_capture()
-             |> Reather.run(mock(%{&List.first/1 => :external}))
+             |> Reather.run(Reather.mock(%{&List.first/1 => :external}))
   end
 
   test "local" do
@@ -32,6 +32,7 @@ defmodule Reather.CaptureTest do
              Target.local_capture() |> Reather.run(%{})
 
     assert %Right{right: :local} ==
-             Target.local_capture() |> Reather.run(mock(%{&Target.local_first/1 => :local}))
+             Target.local_capture()
+             |> Reather.run(Reather.mock(%{&Target.local_first/1 => :local}))
   end
 end

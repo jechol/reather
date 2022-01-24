@@ -5,7 +5,7 @@ defmodule Reather.ReatherfyTest do
   describe "reatherfy" do
     test "multi line" do
       f =
-        reatherfy(fn x, y ->
+        Reather.reatherfy(fn x, y ->
           let _ = Process.sleep(100)
           return Right.new(x + y)
         end)
@@ -15,7 +15,7 @@ defmodule Reather.ReatherfyTest do
 
     test "multi clauses" do
       f =
-        reatherfy(fn
+        Reather.reatherfy(fn
           x, y when is_integer(x) ->
             z <- Reather.ask()
             return Right.new(x + y + z)
@@ -30,7 +30,7 @@ defmodule Reather.ReatherfyTest do
     end
 
     test "raw value" do
-      g = reatherfy(fn _ -> return Right.new([]) end)
+      g = Reather.reatherfy(fn _ -> return Right.new([]) end)
 
       assert %Right{right: []} == g.(nil) |> Reather.run(nil)
     end

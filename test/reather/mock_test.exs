@@ -10,7 +10,11 @@ defmodule Reather.MockTest do
 
   describe "mock" do
     test "non-reader" do
-      m = mock(%{&Enum.count/1 => (fn -> Right.new(100) end).(), &Enum.map/2 => Right.new(200)})
+      m =
+        Reather.mock(%{
+          &Enum.count/1 => (fn -> Right.new(100) end).(),
+          &Enum.map/2 => Right.new(200)
+        })
 
       f1 = m[&Enum.count/1]
       f2 = m[&Enum.map/2]
@@ -23,7 +27,7 @@ defmodule Reather.MockTest do
     end
 
     test "reader" do
-      m = mock(%{&Target.sum/2 => Right.new(99)})
+      m = Reather.mock(%{&Target.sum/2 => Right.new(99)})
 
       f_sum = m[&Target.sum/2]
 
