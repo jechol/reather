@@ -2,21 +2,21 @@ defmodule Reather.Macros do
   defmacro __using__([]) do
     quote do
       use Witchcraft, override_kernel: false
-      import Reather.Macros, only: [ask: 0, ask: 1]
-      import Reather, only: :macros
       alias Algae.Either.{Left, Right}
 
-      unless Module.has_attribute?(__MODULE__, :defri_funs) do
-        Module.register_attribute(__MODULE__, :defri_funs, accumulate: true)
-        @before_compile Reather
+      import Reather.Macros, only: :macros
+
+      unless Module.has_attribute?(__MODULE__, :reather_functions) do
+        Module.register_attribute(__MODULE__, :reather_functions, accumulate: true)
+        @before_compile Reather.Macros
       end
     end
   end
 
   defmacro __before_compile__(_env) do
     quote do
-      def __defri_funs__ do
-        @defri_funs
+      def __reather_functions__ do
+        @reather_functions
       end
     end
   end
@@ -26,7 +26,7 @@ defmodule Reather.Macros do
     do_block = body |> convert_do_block()
 
     quote do
-      @defri_funs unquote(fa)
+      @reather_functions unquote(fa)
       def unquote(head) do
         unquote(do_block)
       end
@@ -39,7 +39,7 @@ defmodule Reather.Macros do
     do_block = body |> convert_do_block()
 
     quote do
-      @defri_funs unquote(fa)
+      @reather_functions unquote(fa)
       defp unquote(head) do
         unquote(do_block)
       end
@@ -166,7 +166,7 @@ defmodule Reather.Macros do
     monad_body =
       [
         quote do
-          var!(ask_ret) <- Reather.Macros.ask()
+          var!(ask_ret) <- Reather.ask()
         end,
         quote do
           let(_ = var!(ask_ret))
@@ -187,7 +187,7 @@ defmodule Reather.Macros do
     quote do
       use Witchcraft
 
-      monad %Reather.Macros{} do
+      monad %Reather{} do
         unquote({:__block__, ctx, monad_body})
       end
     end

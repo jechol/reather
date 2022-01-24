@@ -2,6 +2,8 @@ defmodule Reather do
   defmacro __using__([]) do
     quote do
       use Reather.Macros
+
+      import Reather, only: [ask: 0, ask: 1]
     end
   end
 

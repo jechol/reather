@@ -45,7 +45,7 @@ defmodule Reather.Mock do
   end
 
   defp is_defri_fun?({m, f, a}) do
-    Kernel.function_exported?(m, :__defri_funs__, 0) and
-      {f, a} in Kernel.apply(m, :__defri_funs__, [])
+    Kernel.function_exported?(m, :__reather_functions__, 0) and
+      {f, a} in Kernel.apply(m, :__reather_functions__, [])
   end
 end
