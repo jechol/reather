@@ -2,7 +2,7 @@
 [![Hex version badge](https://img.shields.io/hexpm/v/defr.svg)](https://hex.pm/packages/defr)
 [![License badge](https://img.shields.io/hexpm/l/defr.svg)](https://github.com/trevorite/defr/blob/master/LICENSE.md)
 
-`defr` is `def` for Witchcraft's Reader monads.
+`defr` is `def` for Witchcraft's Reather monads.
 
 ## Installation
 
@@ -50,33 +50,33 @@ becomes (simplified for clarity)
 ```elixir
 defmodule Target do
   def top(list)  do
-    monad(%Algae.Reader{}) do
-      env <- Algae.Reader.ask()
+    monad(%Algae.Reather{}) do
+      env <- Algae.Reather.ask()
       return(
         list
         |> Map.get(env, &List.flatten/1, &List.flatten/1).()
         |> middle()
-        |> Reader.run(env)
+        |> Reather.run(env)
       )
     end
   end
 
   def middle(list) do
-    monad %Algae.Reader{}  do
-      env <- Algae.Reader.ask()
+    monad %Algae.Reather{}  do
+      env <- Algae.Reather.ask()
       let _ = Process.sleep(100)
       return(
         list
         |> Map.get(env, &Target.bottom/1, &Target.bottom/1).()
-        |> Reader.run(env)
+        |> Reather.run(env)
       )
     end
   end
 
   defp bottom(list) do
-    monad %Algae.Reader{} do
-      env <- Algae.Reader.ask()
-      %{pos: pos} <- Algae.Reader.ask()
+    monad %Algae.Reather{} do
+      env <- Algae.Reather.ask()
+      %{pos: pos} <- Algae.Reather.ask()
       return(
         list
         |> Map.get(env, &Enum.at/2, &Enum.at/2).(pos)
@@ -90,17 +90,17 @@ end
 
 ```elixir
 test "defr" do
-  assert 1 == Target.top([[0], 1]) |> Reader.run(%{pos: 1})
+  assert 1 == Target.top([[0], 1]) |> Reather.run(%{pos: 1})
 
   assert 20 ==
-            Target.top([[0], 1]) |> Reader.run(mock(%{&List.flatten/1 => [10, 20, 30], pos: 1}))
+            Target.top([[0], 1]) |> Reather.run(mock(%{&List.flatten/1 => [10, 20, 30], pos: 1}))
 
   assert :imported_func ==
-            Target.top([[0], 1]) |> Reader.run(mock(%{&Enum.at/2 => :imported_func, pos: 1}))
+            Target.top([[0], 1]) |> Reather.run(mock(%{&Enum.at/2 => :imported_func, pos: 1}))
 
   assert :private_func ==
             Target.top([[0], 1])
-            |> Reader.run(mock(%{&Target.bottom/1 => :private_func}))
+            |> Reather.run(mock(%{&Target.bottom/1 => :private_func}))
 end
 ```
 

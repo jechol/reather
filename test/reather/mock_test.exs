@@ -1,7 +1,7 @@
 defmodule Reather.MockTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Rither
+  alias Reather.Macros
 
   defmodule Target do
     use Reather
@@ -30,8 +30,8 @@ defmodule Reather.MockTest do
 
       assert :erlang.fun_info(f_sum)[:arity] == 2
 
-      assert %Rither{} = f_sum.(10, 20)
-      assert Right.new(99) == f_sum.(10, 20) |> Rither.run(%{})
+      assert %Reather{} = f_sum.(10, 20)
+      assert Right.new(99) == f_sum.(10, 20) |> Reather.run(%{})
     end
   end
 end

@@ -1,24 +1,24 @@
-defmodule Rither.RitherTest do
+defmodule Reather.MacrosTest do
   use ExUnit.Case
 
   use Witchcraft
   alias Algae.Either.{Left, Right}
-  alias Reather.Rither
+  alias Reather.Macros
 
-  test "Rither" do
+  test "Reather" do
     sum =
-      monad %Rither{} do
-        %{a: a, b: b, fail: fail} <- Rither.ask()
+      monad %Reather{} do
+        %{a: a, b: b, fail: fail} <- Reather.ask()
 
         if fail do
-          Rither.left(:sum_error)
+          Reather.left(:sum_error)
         else
-          # Same with Rither.right(a + b)
+          # Same with Reather.right(a + b)
           return(Right.new(a + b))
         end
       end
 
-    assert %Left{left: :sum_error} == sum |> Rither.run(%{a: 1, b: 2, fail: true})
-    assert %Right{right: 3} == sum |> Rither.run(%{a: 1, b: 2, fail: false})
+    assert %Left{left: :sum_error} == sum |> Reather.run(%{a: 1, b: 2, fail: true})
+    assert %Right{right: 3} == sum |> Reather.run(%{a: 1, b: 2, fail: false})
   end
 end

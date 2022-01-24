@@ -1,7 +1,7 @@
 defmodule Reather.AskTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Rither
+  alias Reather.Macros
 
   defmodule Target do
     use Reather
@@ -18,10 +18,10 @@ defmodule Reather.AskTest do
   end
 
   test "single" do
-    assert %Right{right: 2} == Target.single() |> Rither.run(%{})
+    assert %Right{right: 2} == Target.single() |> Reather.run(%{})
   end
 
   test "multi" do
-    assert %Right{right: 111} == Target.multi() |> Rither.run(%{a: 10, b: 100})
+    assert %Right{right: 111} == Target.multi() |> Reather.run(%{a: 10, b: 100})
   end
 end

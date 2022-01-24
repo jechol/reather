@@ -1,7 +1,7 @@
 defmodule Reather.NestedEnvTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Rither
+  alias Reather.Macros
 
   defmodule Target do
     use Reather
@@ -21,7 +21,7 @@ defmodule Reather.NestedEnvTest do
   end
 
   test "outer env has higher priority" do
-    assert %Right{right: {:env, 10}} = Target.top(10) |> Rither.run(%{})
-    assert %Right{right: {:mock, 20}} = Target.top(10) |> Rither.run(%{value: {:mock, 20}})
+    assert %Right{right: {:env, 10}} = Target.top(10) |> Reather.run(%{})
+    assert %Right{right: {:mock, 20}} = Target.top(10) |> Reather.run(%{value: {:mock, 20}})
   end
 end

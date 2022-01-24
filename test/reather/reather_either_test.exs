@@ -1,7 +1,7 @@
-defmodule Reather.ReaderEitherTest do
+defmodule Reather.ReatherEitherTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Rither
+  alias Reather.Macros
   alias Algae.Either.{Left, Right}
 
   defmodule Target do
@@ -30,8 +30,8 @@ defmodule Reather.ReaderEitherTest do
     end
   end
 
-  test "Rither - Either" do
-    assert %Right{right: 5.0} == Target.div_10_by(2) |> Rither.run(%{})
-    assert %Right{right: -1} == Target.div_10_by(0) |> Rither.run(%{})
+  test "Reather - Either" do
+    assert %Right{right: 5.0} == Target.div_10_by(2) |> Reather.run(%{})
+    assert %Right{right: -1} == Target.div_10_by(0) |> Reather.run(%{})
   end
 end

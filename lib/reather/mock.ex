@@ -1,6 +1,6 @@
 defmodule Reather.Mock do
   @moduledoc false
-  alias Reather.Rither
+  alias Reather.Macros
   alias Algae.Either.{Left, Right}
 
   def decorate_with_fn({{:&, _, [{:/, _, [{{:., _, [m, f]}, _, []}, a]}]} = capture, v}) do
@@ -13,7 +13,7 @@ defmodule Reather.Mock do
           [
             Macro.generate_arguments(a, __MODULE__),
             quote do
-              Rither.new(fn _ask_ret -> unquote(v) end)
+              Reather.new(fn _ask_ret -> unquote(v) end)
             end
           ]}
        ]}

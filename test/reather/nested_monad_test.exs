@@ -1,7 +1,7 @@
 defmodule Reather.NestedMonadTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Rither
+  alias Reather.Macros
   alias Algae.Either.Right
 
   defmodule Target do
@@ -20,9 +20,9 @@ defmodule Reather.NestedMonadTest do
   end
 
   test "witchcraft" do
-    assert %Right{right: 1} == Target.target() |> Rither.run(%{})
+    assert %Right{right: 1} == Target.target() |> Reather.run(%{})
 
     assert %Right{right: 100} ==
-             Target.target() |> Rither.run(mock(%{&Target.get_number/0 => Right.new(100)}))
+             Target.target() |> Reather.run(mock(%{&Target.get_number/0 => Right.new(100)}))
   end
 end

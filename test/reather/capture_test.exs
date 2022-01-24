@@ -1,7 +1,7 @@
 defmodule Reather.CaptureTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Rither
+  alias Reather.Macros
 
   defmodule Target do
     use Reather
@@ -21,18 +21,18 @@ defmodule Reather.CaptureTest do
 
   test "external" do
     assert %Right{right: 1} ==
-             Target.external_capture() |> Rither.run(%{})
+             Target.external_capture() |> Reather.run(%{})
 
     assert %Right{right: :external} ==
              Target.external_capture()
-             |> Rither.run(mock(%{&List.first/1 => :external}))
+             |> Reather.run(mock(%{&List.first/1 => :external}))
   end
 
   test "local" do
     assert %Right{right: 100} ==
-             Target.local_capture() |> Rither.run(%{})
+             Target.local_capture() |> Reather.run(%{})
 
     assert %Right{right: :local} ==
-             Target.local_capture() |> Rither.run(mock(%{&Target.local_first/1 => :local}))
+             Target.local_capture() |> Reather.run(mock(%{&Target.local_first/1 => :local}))
   end
 end

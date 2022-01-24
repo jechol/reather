@@ -12,7 +12,7 @@ defmodule Defr.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       package: package(),
-      description: "Helper for Witchcraft's Reader monad",
+      description: "Helper for Witchcraft's Reather monad",
       source_url: "https://github.com/trevorite/defr",
       docs: docs()
     ]
