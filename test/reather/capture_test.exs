@@ -10,11 +10,11 @@ defmodule Reather.CaptureTest do
     end
 
     reather external_capture() do
-      :erlang.apply((&List.first/1) |> inject(), [[1, 2]]) |> Right.new()
+      return :erlang.apply((&List.first/1) |> inject(), [[1, 2]]) |> Right.new()
     end
 
     reather local_capture() do
-      :erlang.apply((&local_first/1) |> inject(), [[100, 200]]) |> Right.new()
+      return :erlang.apply((&local_first/1) |> inject(), [[100, 200]]) |> Right.new()
     end
   end
 

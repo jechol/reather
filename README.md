@@ -38,7 +38,7 @@ defmodule Target do
   end
 
   defrp bottom(list) do
-    %{pos: pos} <- ask()
+    %{pos: pos} <- Reather.ask()
     let _ = Process.sleep(100) # Use `let` to call non-reader function.
     list |> at(pos) |> inject()
   end
@@ -51,7 +51,7 @@ becomes (simplified for clarity)
 defmodule Target do
   def top(list)  do
     monad(%Algae.Reather{}) do
-      env <- Algae.Reather.ask()
+      env <- Algae.Reather.Reather.ask()
       return(
         list
         |> Map.get(env, &List.flatten/1, &List.flatten/1).()
@@ -63,7 +63,7 @@ defmodule Target do
 
   def middle(list) do
     monad %Algae.Reather{}  do
-      env <- Algae.Reather.ask()
+      env <- Algae.Reather.Reather.ask()
       let _ = Process.sleep(100)
       return(
         list
@@ -75,8 +75,8 @@ defmodule Target do
 
   defp bottom(list) do
     monad %Algae.Reather{} do
-      env <- Algae.Reather.ask()
-      %{pos: pos} <- Algae.Reather.ask()
+      env <- Algae.Reather.Reather.ask()
+      %{pos: pos} <- Algae.Reather.Reather.ask()
       return(
         list
         |> Map.get(env, &Enum.at/2, &Enum.at/2).(pos)

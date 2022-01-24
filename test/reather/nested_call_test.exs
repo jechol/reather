@@ -8,16 +8,16 @@ defmodule Reather.NestedCallTest do
     import Enum, only: [at: 2]
 
     reather top(list) do
-      list |> List.flatten() |> inject() |> middle() |> run()
+      list |> List.flatten() |> inject() |> middle()
     end
 
     reather middle(list) do
-      list |> bottom() |> inject() |> run()
+      list |> bottom() |> inject()
     end
 
     reatherp bottom(list) do
-      %{pos: pos} <- ask()
-      at(list, pos) |> inject() |> Right.new()
+      %{pos: pos} <- Reather.ask()
+      return at(list, pos) |> inject() |> Right.new()
     end
   end
 

@@ -5,7 +5,7 @@ defmodule Reather.MockTest do
   defmodule Target do
     use Reather
 
-    reather(sum(a, b), do: a + b)
+    reather sum(a, b), do: a + b
   end
 
   describe "mock" do

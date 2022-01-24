@@ -10,8 +10,8 @@ defmodule Reather.AskTest do
     end
 
     reather multi() do
-      %{a: a} <- ask()
-      %{b: b} <- ask()
+      %{a: a} <- Reather.ask()
+      %{b: b} <- Reather.ask()
       return Right.new(1 + a + b)
     end
   end

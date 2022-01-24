@@ -1,8 +1,7 @@
 defmodule ReatherTest do
   use ExUnit.Case
 
-  use Witchcraft
-  alias Algae.Either.{Left, Right}
+  use Reather
 
   test "Reather" do
     sum =

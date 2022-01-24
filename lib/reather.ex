@@ -2,8 +2,6 @@ defmodule Reather do
   defmacro __using__([]) do
     quote do
       use Reather.Macros
-
-      import Reather, only: [ask: 0, ask: 1]
     end
   end
 
@@ -20,11 +18,17 @@ defmodule Reather do
 
   def run(%Reather{reather: fun}, arg), do: fun.(arg) |> ensure_either()
 
+  def overlay(%Reather{reather: fun}, new_env) do
+    Reather.new(fn env ->
+      fun.(Map.merge(env, new_env))
+    end)
+  end
+
   def ask(), do: Reather.new(fn env -> Right.new(env) end)
 
   def ask(fun) do
     monad %Reather{} do
-      env <- ask()
+      env <- Reather.ask()
       return Right.new(fun.(env))
     end
   end
