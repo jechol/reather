@@ -20,6 +20,7 @@ defmodule Reather.OverlayTest do
   end
 
   test "outer env has higher priority" do
-    assert %Right{right: {:overlay, 10}} = Target.top(10) |> Reather.run(%{value: {:mock, 20}})
+    assert %Right{right: {:overlay, 10}} = Target.top(10) |> Reather.run()
+    assert %Right{right: {:mock, 20}} = Target.top(10) |> Reather.run(%{value: {:mock, 20}})
   end
 end

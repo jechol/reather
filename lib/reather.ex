@@ -16,11 +16,11 @@ defmodule Reather do
   def left(error), do: new(fn _ -> Left.new(error) end)
   def right(value), do: new(fn _ -> Right.new(value) end)
 
-  def run(%Reather{reather: fun}, arg), do: fun.(arg) |> ensure_either()
+  def run(%Reather{reather: fun}, arg \\ %{}), do: fun.(arg) |> ensure_either()
 
-  def overlay(%Reather{reather: fun}, new_env) do
-    Reather.new(fn env ->
-      fun.(Map.merge(env, new_env))
+  def overlay(%Reather{reather: fun}, env) do
+    Reather.new(fn new_env ->
+      fun.(Map.merge(env, new_env) |> IO.inspect())
     end)
   end
 
