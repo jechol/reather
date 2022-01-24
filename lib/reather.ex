@@ -18,20 +18,7 @@ defmodule Reather do
 
   def run(%Reather{reather: fun}, arg \\ %{}), do: fun.(arg) |> ensure_either()
 
-  def overlay(%Reather{reather: fun}, env) do
-    Reather.new(fn new_env ->
-      fun.(Map.merge(env, new_env))
-    end)
-  end
-
   def ask(), do: Reather.new(fn env -> Right.new(env) end)
-
-  def ask(fun) do
-    monad %Reather{} do
-      env <- Reather.ask()
-      return Right.new(fun.(env))
-    end
-  end
 
   def ensure_either(%Left{} = v), do: v
   def ensure_either(%Right{} = v), do: v

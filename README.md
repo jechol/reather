@@ -59,10 +59,11 @@ use Reather
 assert %Left{left: :enoent} = Target.read_and_multiply("invalid") |> Reather.run()
 assert %Right{right: 990} = Target.read_and_multiply("valid") |> Reather.run(%{number: 10})
 
+mock = Reather.mock(%{&Target.Impure.read/1 => Reather.right(88)})
+
 assert %Right{right: 880} =
           Target.read_and_multiply("valid")
-          |> Reather.overlay(Reather.mock(%{&Target.Impure.read/1 => Reather.right(88)}))
-          |> Reather.run(%{number: 10})
+          |> Reather.run(mock |> Map.merge(%{number: 10}))
 ```
 
 ## License
