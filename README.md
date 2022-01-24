@@ -27,57 +27,26 @@ locals_without_parens: [reather: 2]
 defmodule Target do
   use Reather
 
-  import Enum, only: [at: 2]
+  defmodule Impure do
+    reather read("invalid") do
+      Reather.left(:enoent)
+    end
 
-  reather top(list) do
-    list |> List.flatten() |> inject() |> middle()
-  end
-
-  reather middle(list) do
-    list |> bottom() |> inject()
-  end
-
-  reatherp bottom(list) do
-    %{pos: pos} <- Reather.ask()
-    return at(list, pos) |> inject() |> Right.new()
-  end
-end
-```
-
-becomes (simplified for clarity)
-
-```elixir
-defmodule Target do
-  def top(list)  do
-    monad %Reather{}  do
-      env <- Reather.ask()
-
-      list
-      |> Map.get(env, &List.flatten/1, &List.flatten/1).()
-      |> middle()
+    reather read("valid") do
+      Reather.right(99)
     end
   end
 
-  def middle(list) do
-    monad %Reather{}  do
-      env <- Reather.ask()
+  reather read_and_multiply(filename) do
+    input <- Impure.read(filename) |> inject()
 
-      list
-      |> Map.get(env, &Target.bottom/1, &Target.bottom/1).()
-    end
+    multiply(input)
   end
 
-  defp bottom(list) do
-    monad %Reather{} do
-      env <- Reather.ask()
-      %{pos: pos} <- Reather.ask()
+  reatherp multiply(input) do
+    %{number: number} <- Reather.ask()
 
-      return(
-        list
-        |> Map.get(env, &Enum.at/2, &Enum.at/2).(pos)
-        |> Right.new()
-      )
-    end
+    Reather.right(input * number)
   end
 end
 ```
@@ -85,19 +54,13 @@ end
 ## Test
 
 ```elixir
-test "inject" do
-  assert %Right{right: 1} == Target.top([[0], 1]) |> Reather.run(%{pos: 1})
+assert %Left{left: :enoent} = Target.read_and_multiply("invalid") |> Reather.run()
+assert %Right{right: 990} = Target.read_and_multiply("valid") |> Reather.run(%{number: 10})
 
-  assert %Right{right: 20} ==
-            Target.top([[0], 1]) |> Reather.run(mock(%{&List.flatten/1 => [10, 20, 30], pos: 1}))
-
-  assert %Right{right: :imported_func} ==
-            Target.top([[0], 1]) |> Reather.run(mock(%{&Enum.at/2 => :imported_func, pos: 1}))
-
-  assert %Right{right: :private_func} ==
-            Target.top([[0], 1])
-            |> Reather.run(mock(%{&Target.bottom/1 => Right.new(:private_func)}))
-end
+assert %Right{right: 880} =
+          Target.read_and_multiply("valid")
+          |> Reather.overlay(mock(%{&Target.Impure.read/1 => Reather.right(88)}))
+          |> Reather.run(%{number: 10})
 ```
 
 ## License
