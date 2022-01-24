@@ -1,4 +1,4 @@
-defmodule Reather.MacrosTest do
+defmodule ReatherTest do
   use ExUnit.Case
 
   use Witchcraft
