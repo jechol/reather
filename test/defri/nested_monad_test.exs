@@ -10,9 +10,9 @@ defmodule Defri.NestedMonadTest do
     defri target() do
       let _ = Process.sleep(100)
 
-      chain do
+      monad %Right{} do
         n <- get_number() |> inject()
-        n
+        n |> Right.new()
       end
     end
 
@@ -20,7 +20,9 @@ defmodule Defri.NestedMonadTest do
   end
 
   test "witchcraft" do
-    assert 1 == Target.target() |> Rither.run(%{})
-    assert 100 == Target.target() |> Rither.run(mock(%{&Target.get_number/0 => Right.new(100)}))
+    assert %Right{right: 1} == Target.target() |> IO.inspect() |> Rither.run(%{})
+
+    assert %Right{right: 100} ==
+             Target.target() |> Rither.run(mock(%{&Target.get_number/0 => Right.new(100)}))
   end
 end
