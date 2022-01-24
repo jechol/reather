@@ -16,7 +16,7 @@ defmodule ReatherTest do
     end
 
     reather read_and_multiply(filename) do
-      input <- Impure.read(filename) |> inject()
+      input <- Impure.read(filename) |> Reather.inject()
 
       multiply(input)
     end
@@ -34,7 +34,7 @@ defmodule ReatherTest do
 
     assert %Right{right: 880} =
              Target.read_and_multiply("valid")
-             |> Reather.overlay(mock(%{&Target.Impure.read/1 => Reather.right(88)}))
+             |> Reather.overlay(Reather.mock(%{&Target.Impure.read/1 => Reather.right(88)}))
              |> Reather.run(%{number: 10})
   end
 end

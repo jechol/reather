@@ -153,10 +153,17 @@ defmodule Reather.Macros do
   end
 
   defp has_inject?(exprs) do
+    # False positive is okay.
     {^exprs, found?} =
       Macro.prewalk(exprs, false, fn
-        {:inject, _, _} = ast, _ -> {ast, true}
-        _ = ast, found? -> {ast, found?}
+        {:inject, _, []} = ast, _ ->
+          {ast, true}
+
+        {{:., _, [_, :inject]}, _, []} = ast, _ ->
+          {ast, true}
+
+        _ = ast, found? ->
+          {ast, found?}
       end)
 
     found?

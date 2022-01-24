@@ -21,7 +21,7 @@ To format `reather` like `def`, add following to your `.formatter.exs`
 locals_without_parens: [reather: 2]
 ```
 
-## `reather` transformation
+## `reather`, `left/right`, `ask`, `inject`, `mock`
 
 ```elixir
 defmodule Target do
@@ -38,7 +38,7 @@ defmodule Target do
   end
 
   reather read_and_multiply(filename) do
-    input <- Impure.read(filename) |> inject()
+    input <- Impure.read(filename) |> Reather.inject()
 
     multiply(input)
   end
@@ -51,15 +51,15 @@ defmodule Target do
 end
 ```
 
-## Test
-
 ```elixir
+use Reather
+
 assert %Left{left: :enoent} = Target.read_and_multiply("invalid") |> Reather.run()
 assert %Right{right: 990} = Target.read_and_multiply("valid") |> Reather.run(%{number: 10})
 
 assert %Right{right: 880} =
           Target.read_and_multiply("valid")
-          |> Reather.overlay(mock(%{&Target.Impure.read/1 => Reather.right(88)}))
+          |> Reather.overlay(Reather.mock(%{&Target.Impure.read/1 => Reather.right(88)}))
           |> Reather.run(%{number: 10})
 ```
 
