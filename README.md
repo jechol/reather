@@ -1,46 +1,45 @@
-[![mix test](https://github.com/trevorite/defr/workflows/mix%20test/badge.svg)](https://github.com/trevorite/defr/actions)
-[![Hex version badge](https://img.shields.io/hexpm/v/defr.svg)](https://hex.pm/packages/defr)
-[![License badge](https://img.shields.io/hexpm/l/defr.svg)](https://github.com/trevorite/defr/blob/master/LICENSE.md)
+[![mix test](https://github.com/jechol/reather/workflows/mix%20test/badge.svg)](https://github.com/jechol/reather/actions)
+[![Hex version badge](https://img.shields.io/hexpm/v/reather.svg)](https://hex.pm/packages/reather)
+[![License badge](https://img.shields.io/hexpm/l/reather.svg)](https://github.com/jechol/reather/blob/master/LICENSE.md)
 
-`defr` is `def` for Witchcraft's Reather monads.
+`reather` is `def` for Witchcraft's Reader + Either monads.
 
 ## Installation
 
-The package can be installed by adding `defr` to your list of dependencies
+The package can be installed by adding `reather` to your list of dependencies
 in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:reather, "~> 0.3"}]
+  [{:reather, "~> 0.1"}]
 end
 ```
 
-To format `defr` like `def`, add following to your `.formatter.exs`
+To format `reather` like `def`, add following to your `.formatter.exs`
 
 ```elixir
-locals_without_parens: [defr: 2]
+locals_without_parens: [reather: 2]
 ```
 
-## `defr` transformation
+## `reather` transformation
 
 ```elixir
 defmodule Target do
-  use Defr
+  use Reather
 
   import Enum, only: [at: 2]
 
-  defr top(list) do
-    list |> List.flatten() |> inject() |> middle() |> run()
+  reather top(list) do
+    list |> List.flatten() |> inject() |> middle()
   end
 
-  defr middle(list) do
-    list |> bottom() |> inject() |> run()
+  reather middle(list) do
+    list |> bottom() |> inject()
   end
 
-  defrp bottom(list) do
+  reatherp bottom(list) do
     %{pos: pos} <- Reather.ask()
-    let _ = Process.sleep(100) # Use `let` to call non-reader function.
-    list |> at(pos) |> inject()
+    return at(list, pos) |> inject() |> Right.new()
   end
 end
 ```
@@ -50,36 +49,33 @@ becomes (simplified for clarity)
 ```elixir
 defmodule Target do
   def top(list)  do
-    monad(%Algae.Reather{}) do
-      env <- Algae.Reather.Reather.ask()
-      return(
-        list
-        |> Map.get(env, &List.flatten/1, &List.flatten/1).()
-        |> middle()
-        |> Reather.run(env)
-      )
+    monad %Reather{}  do
+      env <- Reather.ask()
+
+      list
+      |> Map.get(env, &List.flatten/1, &List.flatten/1).()
+      |> middle()
     end
   end
 
   def middle(list) do
-    monad %Algae.Reather{}  do
-      env <- Algae.Reather.Reather.ask()
-      let _ = Process.sleep(100)
-      return(
-        list
-        |> Map.get(env, &Target.bottom/1, &Target.bottom/1).()
-        |> Reather.run(env)
-      )
+    monad %Reather{}  do
+      env <- Reather.ask()
+
+      list
+      |> Map.get(env, &Target.bottom/1, &Target.bottom/1).()
     end
   end
 
   defp bottom(list) do
-    monad %Algae.Reather{} do
-      env <- Algae.Reather.Reather.ask()
-      %{pos: pos} <- Algae.Reather.Reather.ask()
+    monad %Reather{} do
+      env <- Reather.ask()
+      %{pos: pos} <- Reather.ask()
+
       return(
         list
         |> Map.get(env, &Enum.at/2, &Enum.at/2).(pos)
+        |> Right.new()
       )
     end
   end
@@ -89,18 +85,18 @@ end
 ## Test
 
 ```elixir
-test "defr" do
-  assert 1 == Target.top([[0], 1]) |> Reather.run(%{pos: 1})
+test "inject" do
+  assert %Right{right: 1} == Target.top([[0], 1]) |> Reather.run(%{pos: 1})
 
-  assert 20 ==
+  assert %Right{right: 20} ==
             Target.top([[0], 1]) |> Reather.run(mock(%{&List.flatten/1 => [10, 20, 30], pos: 1}))
 
-  assert :imported_func ==
+  assert %Right{right: :imported_func} ==
             Target.top([[0], 1]) |> Reather.run(mock(%{&Enum.at/2 => :imported_func, pos: 1}))
 
-  assert :private_func ==
+  assert %Right{right: :private_func} ==
             Target.top([[0], 1])
-            |> Reather.run(mock(%{&Target.bottom/1 => :private_func}))
+            |> Reather.run(mock(%{&Target.bottom/1 => Right.new(:private_func)}))
 end
 ```
 
