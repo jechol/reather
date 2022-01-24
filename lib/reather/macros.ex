@@ -57,14 +57,6 @@ defmodule Reather.Macros do
     {:fn, env, injected}
   end
 
-  defmacro run(reather, nested_env \\ Macro.escape(%{})) do
-    quote do
-      env = Map.merge(unquote(nested_env), var!(ask_ret))
-      unquote(reather) |> Reather.run(env)
-    end
-    |> trace()
-  end
-
   # Capture
   defmacro inject(
              {:&, _, [{:/, _, [{{:., _, [mod, name]}, [{:no_parens, true}, _], []}, arity]}]}
