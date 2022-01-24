@@ -25,7 +25,7 @@ defmodule Reather do
   def ask(fun) do
     monad %Reather{} do
       env <- ask()
-      return(Right.new(fun.(env)))
+      return Right.new(fun.(env))
     end
   end
 

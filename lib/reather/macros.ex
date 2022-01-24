@@ -153,36 +153,25 @@ defmodule Reather.Macros do
   end
 
   defp convert_do_block({:__block__, ctx, exprs}) do
-    build_do_block(ctx, exprs |> Enum.take(Enum.count(exprs) - 1), exprs |> List.last())
+    build_do_block(ctx, exprs)
   end
 
   defp convert_do_block(expr) do
-    build_do_block([], [], expr)
+    build_do_block([], [expr])
   end
 
   # Private
 
-  defp build_do_block(ctx, except_last, last) do
-    monad_body =
-      [
-        quote do
-          var!(ask_ret) <- Reather.ask()
-        end,
-        quote do
-          let(_ = var!(ask_ret))
-        end
-        | except_last
-      ] ++
-        [
-          quote do
-            return(
-              (
-                use Witchcraft
-                unquote(last)
-              )
-            )
-          end
-        ]
+  defp build_do_block(ctx, exprs) do
+    monad_body = [
+      quote do
+        var!(ask_ret) <- Reather.ask()
+      end,
+      quote do
+        let(_ = var!(ask_ret))
+      end
+      | exprs
+    ]
 
     quote do
       use Witchcraft

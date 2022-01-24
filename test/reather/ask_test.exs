@@ -6,13 +6,13 @@ defmodule Reather.AskTest do
     use Reather
 
     reather single() do
-      Right.new(1 + 1)
+      return Right.new(1 + 1)
     end
 
     reather multi() do
       %{a: a} <- ask()
       %{b: b} <- ask()
-      Right.new(1 + a + b)
+      return Right.new(1 + a + b)
     end
   end
 

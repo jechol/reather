@@ -2,6 +2,7 @@
 
 locals_without_parens = [
   let: 1,
+  return: 1,
   reather: 1,
   reather: 2,
   reatherp: 2,

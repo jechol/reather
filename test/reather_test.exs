@@ -13,7 +13,7 @@ defmodule ReatherTest do
           Reather.left(:sum_error)
         else
           # Same with Reather.right(a + b)
-          return(Right.new(a + b))
+          return Right.new(a + b)
         end
       end
 
