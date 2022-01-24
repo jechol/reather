@@ -1,7 +1,6 @@
 defmodule Reather.NestedCallTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Macros
 
   defmodule Target do
     use Reather

@@ -3,7 +3,6 @@ defmodule ReatherTest do
 
   use Witchcraft
   alias Algae.Either.{Left, Right}
-  alias Reather.Macros
 
   test "Reather" do
     sum =

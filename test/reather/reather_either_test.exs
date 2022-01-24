@@ -1,7 +1,7 @@
 defmodule Reather.ReatherEitherTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Macros
+
   alias Algae.Either.{Left, Right}
 
   defmodule Target do

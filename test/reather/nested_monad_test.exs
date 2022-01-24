@@ -1,7 +1,7 @@
 defmodule Reather.NestedMonadTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Macros
+
   alias Algae.Either.Right
 
   defmodule Target do

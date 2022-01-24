@@ -1,7 +1,6 @@
 defmodule Reather.ReatherfyTest do
   use ExUnit.Case, async: false
   use Reather
-  alias Reather.Macros
 
   describe "reatherfy" do
     test "multi line" do
