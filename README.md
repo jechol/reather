@@ -21,7 +21,9 @@ To format `reather` like `def`, add following to your `.formatter.exs`
 locals_without_parens: [reather: 2]
 ```
 
-## `reather`, `left/right`, `ask`, `inject`, `mock`
+## Usage
+
+#### `reather`, `left/right`, `ask`, `inject`, `mock`
 
 ```elixir
 defmodule Target do
