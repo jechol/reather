@@ -21,7 +21,7 @@ defmodule Reather.CaptureTest do
 
   test "external" do
     assert %Right{right: 1} ==
-             Target.external_capture() |> IO.inspect() |> Rither.run(%{})
+             Target.external_capture() |> Rither.run(%{})
 
     assert %Right{right: :external} ==
              Target.external_capture()

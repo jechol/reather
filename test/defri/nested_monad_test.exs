@@ -20,7 +20,7 @@ defmodule Reather.NestedMonadTest do
   end
 
   test "witchcraft" do
-    assert %Right{right: 1} == Target.target() |> IO.inspect() |> Rither.run(%{})
+    assert %Right{right: 1} == Target.target() |> Rither.run(%{})
 
     assert %Right{right: 100} ==
              Target.target() |> Rither.run(mock(%{&Target.get_number/0 => Right.new(100)}))

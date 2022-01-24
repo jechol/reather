@@ -47,7 +47,7 @@ defmodule Reather do
     |> trace()
   end
 
-  defmacro ritherfy({:fn, env, clauses}) do
+  defmacro reatherfy({:fn, env, clauses}) do
     injected =
       clauses
       |> Enum.map(fn {:->, env, [args, body]} ->

@@ -14,7 +14,7 @@ defmodule Rither.RitherTest do
           Rither.left(:sum_error)
         else
           # Same with Rither.right(a + b)
-          return(a + b)
+          return(Right.new(a + b))
         end
       end
 
