@@ -60,7 +60,7 @@ defmodule Reather.Macros do
   defmacro run(reather, nested_env \\ Macro.escape(%{})) do
     quote do
       env = Map.merge(unquote(nested_env), var!(ask_ret))
-      unquote(reather) |> Reather.Macros.run(env)
+      unquote(reather) |> Reather.run(env)
     end
     |> trace()
   end
