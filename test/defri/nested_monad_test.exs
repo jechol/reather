@@ -1,13 +1,13 @@
-defmodule Defri.NestedMonadTest do
+defmodule Reather.NestedMonadTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
   alias Algae.Either.Right
 
   defmodule Target do
-    use Defri
+    use Reather
 
-    defri target() do
+    reather target() do
       let _ = Process.sleep(100)
 
       monad %Right{} do

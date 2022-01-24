@@ -1,20 +1,20 @@
-defmodule Defri.NestedEnvTest do
+defmodule Reather.NestedEnvTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
 
   defmodule Target do
-    use Defri
+    use Reather
 
-    defri top(value) do
+    reather top(value) do
       middle() |> run(%{value: {:env, value}})
     end
 
-    defri middle() do
+    reather middle() do
       bottom() |> run()
     end
 
-    defrip bottom() do
+    reatherp bottom() do
       %{value: {source, value}} <- ask()
       {source, value} |> Right.new()
     end

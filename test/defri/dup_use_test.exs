@@ -1,9 +1,9 @@
-defmodule Defri.DupUseTest do
+defmodule Reather.DupUseTest do
   use ExUnit.Case, async: false
-  use Defri
+  use Reather
 
   defmodule Target do
-    use Defri
-    use Defri
+    use Reather
+    use Reather
   end
 end

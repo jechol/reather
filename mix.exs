@@ -5,7 +5,7 @@ defmodule Defr.MixProject do
 
   def project do
     [
-      app: :defr,
+      app: :reather,
       version: @version,
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,

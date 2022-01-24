@@ -1,20 +1,20 @@
-defmodule Defri.CaptureTest do
+defmodule Reather.CaptureTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
 
   defmodule Target do
-    use Defri
+    use Reather
 
     defp local_first(list) do
       List.first(list)
     end
 
-    defri external_capture() do
+    reather external_capture() do
       :erlang.apply((&List.first/1) |> inject(), [[1, 2]]) |> Right.new()
     end
 
-    defri local_capture() do
+    reather local_capture() do
       :erlang.apply((&local_first/1) |> inject(), [[100, 200]]) |> Right.new()
     end
   end

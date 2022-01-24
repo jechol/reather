@@ -1,16 +1,16 @@
-defmodule Defri.AskTest do
+defmodule Reather.AskTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
 
   defmodule Target do
-    use Defri
+    use Reather
 
-    defri single() do
+    reather single() do
       Right.new(1 + 1)
     end
 
-    defri multi() do
+    reather multi() do
       %{a: a} <- ask()
       %{b: b} <- ask()
       Right.new(1 + a + b)

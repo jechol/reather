@@ -1,7 +1,7 @@
-defmodule Defri.ReaderfyTest do
+defmodule Reather.ReaderfyTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
 
   describe "readerfy" do
     test "multi line" do

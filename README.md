@@ -11,7 +11,7 @@ in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:defr, "~> 0.3"}]
+  [{:reather, "~> 0.3"}]
 end
 ```
 

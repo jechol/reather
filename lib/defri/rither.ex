@@ -1,4 +1,4 @@
-defmodule Defri.Rither do
+defmodule Reather.Rither do
   use Witchcraft
   alias __MODULE__
   alias Algae.Either.{Left, Right}
@@ -25,7 +25,7 @@ defmodule Defri.Rither do
   def ensure_either(%Right{} = v), do: v
 end
 
-alias Defri.Rither
+alias Reather.Rither
 alias Algae.Either.{Left, Right}
 import TypeClass
 use Witchcraft

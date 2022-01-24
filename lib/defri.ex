@@ -1,14 +1,14 @@
-defmodule Defri do
+defmodule Reather do
   defmacro __using__([]) do
     quote do
       use Witchcraft, override_kernel: false
-      import Defri.Rither, only: [ask: 0, ask: 1]
-      import Defri, only: :macros
+      import Reather.Rither, only: [ask: 0, ask: 1]
+      import Reather, only: :macros
       alias Algae.Either.{Left, Right}
 
       unless Module.has_attribute?(__MODULE__, :defri_funs) do
         Module.register_attribute(__MODULE__, :defri_funs, accumulate: true)
-        @before_compile Defri
+        @before_compile Reather
       end
     end
   end
@@ -21,7 +21,7 @@ defmodule Defri do
     end
   end
 
-  defmacro defri(head, do: body) do
+  defmacro reather(head, do: body) do
     fa = get_fa(head)
     do_block = body |> convert_do_block()
 
@@ -34,7 +34,7 @@ defmodule Defri do
     |> trace()
   end
 
-  defmacro defrip(head, do: body) do
+  defmacro reatherp(head, do: body) do
     fa = get_fa(head)
     do_block = body |> convert_do_block()
 
@@ -60,7 +60,7 @@ defmodule Defri do
   defmacro run(rither, nested_env \\ Macro.escape(%{})) do
     quote do
       env = Map.merge(unquote(nested_env), var!(ask_ret))
-      unquote(rither) |> Defri.Rither.run(env)
+      unquote(rither) |> Reather.Rither.run(env)
     end
     |> trace()
   end
@@ -117,7 +117,7 @@ defmodule Defri do
   end
 
   defmacro mock({:%{}, context, mocks}) do
-    alias Defri.Mock
+    alias Reather.Mock
 
     {:%{}, context, mocks |> Enum.map(&Mock.decorate_with_fn/1)}
     |> trace()
@@ -166,7 +166,7 @@ defmodule Defri do
     monad_body =
       [
         quote do
-          var!(ask_ret) <- Defri.Rither.ask()
+          var!(ask_ret) <- Reather.Rither.ask()
         end,
         quote do
           let(_ = var!(ask_ret))
@@ -187,13 +187,13 @@ defmodule Defri do
     quote do
       use Witchcraft
 
-      monad %Defri.Rither{} do
+      monad %Reather.Rither{} do
         unquote({:__block__, ctx, monad_body})
       end
     end
   end
 
-  @trace Application.compile_env(:defr, :trace, false)
+  @trace Application.compile_env(:reather, :trace, false)
   defp trace(ast) do
     if @trace do
       ast |> Macro.to_string() |> IO.puts()

@@ -1,22 +1,22 @@
-defmodule Defri.NestedCallTest do
+defmodule Reather.NestedCallTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
 
   defmodule Target do
-    use Defri
+    use Reather
 
     import Enum, only: [at: 2]
 
-    defri top(list) do
+    reather top(list) do
       list |> List.flatten() |> inject() |> middle() |> run()
     end
 
-    defri middle(list) do
+    reather middle(list) do
       list |> bottom() |> inject() |> run()
     end
 
-    defrip bottom(list) do
+    reatherp bottom(list) do
       %{pos: pos} <- ask()
       at(list, pos) |> inject() |> Right.new()
     end

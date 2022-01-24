@@ -1,12 +1,12 @@
-defmodule Defri.MockTest do
+defmodule Reather.MockTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
 
   defmodule Target do
-    use Defri
+    use Reather
 
-    defri(sum(a, b), do: a + b)
+    reather(sum(a, b), do: a + b)
   end
 
   describe "mock" do

@@ -1,6 +1,6 @@
-defmodule Defri.Mock do
+defmodule Reather.Mock do
   @moduledoc false
-  alias Defri.Rither
+  alias Reather.Rither
   alias Algae.Either.{Left, Right}
 
   def decorate_with_fn({{:&, _, [{:/, _, [{{:., _, [m, f]}, _, []}, a]}]} = capture, v}) do
@@ -22,7 +22,7 @@ defmodule Defri.Mock do
       quote do
         {:module, unquote(m)} = Code.ensure_loaded(unquote(m))
 
-        Defri.Mock.select(
+        Reather.Mock.select(
           {unquote(m), unquote(f), unquote(a)},
           unquote(const_fn),
           unquote(reader_fn)

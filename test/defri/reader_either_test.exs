@@ -1,17 +1,17 @@
-defmodule Defri.ReaderEitherTest do
+defmodule Reather.ReaderEitherTest do
   use ExUnit.Case, async: false
-  use Defri
-  alias Defri.Rither
+  use Reather
+  alias Reather.Rither
   alias Algae.Either.{Left, Right}
 
   defmodule Target do
-    use Defri
+    use Reather
 
-    defri do_div(a, b) do
+    reather do_div(a, b) do
       Right.new(a / b)
     end
 
-    defri div_10_by(divisor) do
+    reather div_10_by(divisor) do
       chain do
         :ok <-
           case divisor do
