@@ -1,7 +1,7 @@
 defmodule Defr.MixProject do
   use Mix.Project
 
-  @version "0.4.2"
+  @version "0.1.0"
 
   def project do
     [
@@ -13,7 +13,7 @@ defmodule Defr.MixProject do
       deps: deps(),
       package: package(),
       description: "Helper for Witchcraft's Reather monad",
-      source_url: "https://github.com/trevorite/defr",
+      source_url: "https://github.com/jechol/reather",
       docs: docs()
     ]
   end
@@ -36,7 +36,6 @@ defmodule Defr.MixProject do
       {:algae, git: "https://github.com/jechol/algae.git", override: true},
       {:quark, git: "https://github.com/jechol/quark.git", override: true},
       {:type_class, git: "https://github.com/jechol/type_class.git", override: true},
-      # Maintain until PR is merged. (https://github.com/witchcrafters/witchcraft/pull/83)
       {:witchcraft, git: "https://github.com/jechol/witchcraft.git", override: true}
     ]
   end
@@ -44,17 +43,17 @@ defmodule Defr.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/trevorite/defr"},
-      maintainers: ["Jechol Lee(mr.trevorite@gmail.com)"]
+      links: %{"GitHub" => "https://github.com/jechol/reather"},
+      maintainers: ["Jechol Lee(mr.jechol@gmail.com)"]
     ]
   end
 
   defp docs() do
     [
       main: "readme",
-      name: "defr",
-      canonical: "http://hexdocs.pm/defr",
-      source_url: "https://github.com/trevorite/defr",
+      name: "reather",
+      canonical: "http://hexdocs.pm/reather",
+      source_url: "https://github.com/jechol/reather",
       extras: [
         "README.md"
       ]
