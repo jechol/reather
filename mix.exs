@@ -1,4 +1,4 @@
-defmodule Defr.MixProject do
+defmodule Reather.MixProject do
   use Mix.Project
 
   @version "0.1.0"
@@ -12,7 +12,7 @@ defmodule Defr.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       package: package(),
-      description: "Helper for Witchcraft's Reather monad",
+      description: "Reader + Either",
       source_url: "https://github.com/jechol/reather",
       docs: docs()
     ]
