@@ -28,17 +28,18 @@ defmodule ReatherTest do
     end
   end
 
-  test "Reather.run" do
-    assert %Left{left: :enoent} = Target.read_and_multiply("invalid") |> Reather.run()
-    assert %Right{right: 990} = Target.read_and_multiply("valid") |> Reather.run(%{number: 10})
-  end
-
   test "Reather.run with mock" do
-    mock = Reather.mock(%{&Target.Impure.read/1 => Right.new(88)})
+    mock = Reather.mock(%{&Target.Impure.read/1 => Right.new(77)})
+    # Same with
+    # mock = Reather.mock(%{&Target.Impure.read/1 => Reather.new(fn _env -> Right.new(77) end)})
 
-    assert %Right{right: 880} =
-             Target.read_and_multiply("valid")
-             |> Reather.run(mock |> Map.merge(%{number: 10}))
+    assert %Left{left: :enoent} =
+             Target.read_and_multiply("invalid") |> Reather.run(%{number: 10})
+
+    assert %Right{right: 770} =
+             Target.read_and_multiply("invalid") |> Reather.run(%{number: 10} |> Map.merge(mock))
+
+    assert %Right{right: 990} = Target.read_and_multiply("valid") |> Reather.run(%{number: 10})
   end
 
   test "Functor" do
