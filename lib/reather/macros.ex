@@ -188,9 +188,10 @@ defmodule Reather.Macros do
     quote do
       use Witchcraft
 
-      monad %Reather{} do
-        unquote({:__block__, ctx, monad_body})
-      end
+      %Reather{} =
+        monad %Reather{} do
+          unquote({:__block__, ctx, monad_body})
+        end
     end
   end
 

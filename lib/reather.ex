@@ -2,6 +2,8 @@ defmodule Reather do
   defmacro __using__([]) do
     quote do
       use Reather.Macros
+
+      alias Witchcraft.{Functor, Applicative, Chain, Monad}
     end
   end
 
@@ -53,8 +55,15 @@ definst Witchcraft.Functor, for: Reather do
   def map(%Reather{reather: inner}, fun) do
     Reather.new(fn env ->
       case inner.(env) do
-        %Left{} = left -> left
-        %Right{right: value} -> Right.new(fun.(value))
+        %Left{} = left ->
+          left
+
+        %Right{right: value} ->
+          fun.(value) |> Right.new()
+
+        value ->
+          raise RuntimeError,
+                "Reather function should return %Left{} or %Right{}, not #{inspect(value)}."
       end
     end)
   end
@@ -62,8 +71,12 @@ end
 
 definst Witchcraft.Applicative, for: Reather do
   @force_type_instance true
-  def of(_, %Left{} = value), do: Reather.new(fn _env -> value end)
-  def of(_, %Right{} = value), do: Reather.new(fn _env -> value end)
+  def of(%Reather{}, %Left{} = value), do: Reather.new(fn _env -> value end)
+  def of(%Reather{}, %Right{} = value), do: Reather.new(fn _env -> value end)
+
+  def of(%Reather{}, value) do
+    raise RuntimeError, "`return` argument should be %Left{} or %Right{}, not #{inspect(value)}."
+  end
 end
 
 definst Witchcraft.Chain, for: Reather do
@@ -73,8 +86,15 @@ definst Witchcraft.Chain, for: Reather do
   def chain(reather, link) do
     Reather.new(fn env ->
       case reather |> Reather.run(env) do
-        %Left{} = left -> left
-        %Right{right: value} -> link.(value) |> Reather.run(env)
+        %Left{} = left ->
+          left
+
+        %Right{right: value} ->
+          link.(value) |> Reather.run(env)
+
+        value ->
+          raise RuntimeError,
+                "Reather function should return %Left{} or %Right{}, not #{inspect(value)}."
       end
     end)
   end
