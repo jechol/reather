@@ -15,15 +15,25 @@ defmodule Reather do
   defdata(fun())
 
   def new(fun), do: %Reather{reather: fun}
-  def left(error), do: new(fn _ -> Left.new(error) end)
-  def right(value), do: new(fn _ -> Right.new(value) end)
-
-  def run(%Reather{reather: fun}, arg \\ %{}), do: fun.(arg) |> ensure_either()
 
   def ask(), do: Reather.new(fn env -> Right.new(env) end)
 
-  def ensure_either(%Left{} = v), do: v
-  def ensure_either(%Right{} = v), do: v
+  def run(%Reather{reather: fun}, arg \\ %{}),
+    do: fun.(arg) |> handle_either(&Quark.id/1, &Quark.id/1, "Reather.run should return")
+
+  def handle_either(either, left_fun, right_fun, prefix) do
+    case either do
+      %Left{} = left ->
+        left_fun.(left)
+
+      %Right{} = right ->
+        right_fun.(right)
+
+      non_either ->
+        raise RuntimeError,
+              "#{prefix} %Left{} or %Right{}, not #{inspect(non_either)}."
+    end
+  end
 
   # Macro shortcuts
 
@@ -52,30 +62,23 @@ use Witchcraft
 
 definst Witchcraft.Functor, for: Reather do
   @force_type_instance true
-  def map(%Reather{reather: inner}, fun) do
+  def map(%Reather{reather: inner_fun}, fun) do
     Reather.new(fn env ->
-      case inner.(env) do
-        %Left{} = left ->
-          left
-
-        %Right{right: value} ->
-          fun.(value) |> Right.new()
-
-        value ->
-          raise RuntimeError,
-                "Reather function should return %Left{} or %Right{}, not #{inspect(value)}."
-      end
+      inner_fun.(env)
+      |> Reather.handle_either(
+        &Quark.id/1,
+        fn %Right{right: value} -> fun.(value) |> Right.new() end,
+        "Reather function return"
+      )
     end)
   end
 end
 
 definst Witchcraft.Applicative, for: Reather do
   @force_type_instance true
-  def of(%Reather{}, %Left{} = value), do: Reather.new(fn _env -> value end)
-  def of(%Reather{}, %Right{} = value), do: Reather.new(fn _env -> value end)
-
-  def of(%Reather{}, value) do
-    raise RuntimeError, "`return` argument should be %Left{} or %Right{}, not #{inspect(value)}."
+  def of(%Reather{}, either) do
+    reather = fn either -> Reather.new(fn _env -> either end) end
+    Reather.handle_either(either, reather, reather, "`return` argument should be")
   end
 end
 
@@ -83,19 +86,17 @@ definst Witchcraft.Chain, for: Reather do
   @force_type_instance true
   alias Reather
 
-  def chain(reather, link) do
+  def chain(%Reather{} = reather, link) do
     Reather.new(fn env ->
-      case reather |> Reather.run(env) do
-        %Left{} = left ->
-          left
-
-        %Right{right: value} ->
+      reather
+      |> Reather.run(env)
+      |> Reather.handle_either(
+        &Quark.id/1,
+        fn %Right{right: value} ->
           link.(value) |> Reather.run(env)
-
-        value ->
-          raise RuntimeError,
-                "Reather function should return %Left{} or %Right{}, not #{inspect(value)}."
-      end
+        end,
+        "Unreachable code"
+      )
     end)
   end
 end

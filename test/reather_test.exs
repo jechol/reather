@@ -7,11 +7,11 @@ defmodule ReatherTest do
 
     defmodule Impure do
       reather read("invalid") do
-        Reather.left(:enoent)
+        return Left.new(:enoent)
       end
 
       reather read("valid") do
-        Reather.right(99)
+        return Right.new(99)
       end
     end
 
@@ -24,7 +24,7 @@ defmodule ReatherTest do
     reatherp multiply(input) do
       %{number: number} <- Reather.ask()
 
-      Reather.right(input * number)
+      return Right.new(input * number)
     end
   end
 
@@ -34,7 +34,7 @@ defmodule ReatherTest do
   end
 
   test "Reather.run with mock" do
-    mock = Reather.mock(%{&Target.Impure.read/1 => Reather.right(88)})
+    mock = Reather.mock(%{&Target.Impure.read/1 => Right.new(88)})
 
     assert %Right{right: 880} =
              Target.read_and_multiply("valid")

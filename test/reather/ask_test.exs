@@ -6,7 +6,7 @@ defmodule Reather.AskTest do
     use Reather
 
     reather single() do
-      return Right.new(1 + 1)
+      return(Right.new(1 + 1))
     end
 
     reather multi() do

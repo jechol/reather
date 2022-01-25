@@ -175,9 +175,6 @@ defmodule Reather.Macros do
         [
           quote do
             var!(ask_ret) <- Reather.ask()
-          end,
-          quote do
-            let(_ = var!(ask_ret))
           end
           | exprs
         ]
