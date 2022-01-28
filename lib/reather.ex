@@ -10,9 +10,8 @@ defmodule Reather do
   use Witchcraft
   alias __MODULE__
   alias Algae.Either.{Left, Right}
-  import Algae
 
-  defdata(fun())
+  defstruct reather: &Quark.id/1
 
   def new(fun), do: %Reather{reather: fun}
 
