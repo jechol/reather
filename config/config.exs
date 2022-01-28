@@ -1,3 +1,3 @@
-use Mix.Config
+import Mix.Config
 
 config :reather, trace: false
