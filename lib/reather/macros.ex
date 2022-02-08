@@ -183,7 +183,7 @@ defmodule Reather.Macros do
       end
 
     quote do
-      use Witchcraft
+      use Witchcraft, override_kernel: false
 
       %Reather{} =
         monad %Reather{} do
