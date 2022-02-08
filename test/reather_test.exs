@@ -54,17 +54,19 @@ defmodule ReatherTest do
   end
 
   test "Applicative" do
-    assert_raise RuntimeError, fn ->
-      monad %Reather{} do
-        return 10
-      end
-    end
-
     assert %Right{right: 3} ==
              (monad %Reather{} do
                 let a = 1
                 let b = 2
                 return Right.new(a + b)
+              end)
+             |> Reather.run()
+
+    assert %Right{right: 3} ==
+             (monad %Reather{} do
+                let a = 1
+                let b = 2
+                return a + b
               end)
              |> Reather.run()
   end
@@ -83,5 +85,17 @@ defmodule ReatherTest do
       end
 
     assert %Right{right: 21} == new |> Reather.run(%{a: 10})
+  end
+
+  test "reather/1" do
+    result =
+      reather do
+        a <- Right.new(10)
+        b <- Reather.new(fn _ -> Right.new(20) end)
+
+        return a + b
+      end
+
+    assert %Right{right: 30} == result |> Reather.run()
   end
 end

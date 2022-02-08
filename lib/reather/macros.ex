@@ -1,10 +1,12 @@
 defmodule Reather.Macros do
+  alias Algae.Either.{Left, Right}
+
   defmacro __using__([]) do
     quote do
       use Witchcraft, override_kernel: false
       alias Algae.Either.{Left, Right}
 
-      import Reather.Macros, only: [reather: 2, reatherp: 2]
+      import Reather.Macros, only: [reather: 1, reather: 2, reatherp: 2]
 
       unless Module.has_attribute?(__MODULE__, :reather_functions) do
         Module.register_attribute(__MODULE__, :reather_functions, accumulate: true)
@@ -201,4 +203,44 @@ defmodule Reather.Macros do
       ast
     end
   end
+
+  defmacro reather(do: input) do
+    sample = quote do: %Reather{}
+    returnized = Witchcraft.Monad.desugar_return(input, sample)
+    do_notation(returnized)
+  end
+
+  def do_notation(input) do
+    input
+    |> normalize()
+    |> Enum.reverse()
+    |> Witchcraft.Foldable.left_fold(fn
+      continue, {:let, _, [{:=, _, [assign, value]}]} ->
+        quote do: unquote(value) |> (fn unquote(assign) -> unquote(continue) end).()
+
+      continue, {:<-, _, [assign, value]} ->
+        quote do
+          import Witchcraft.Chain, only: [>>>: 2]
+
+          # Here we accept not only Reather, but also Either for smooth migration.
+          unquote(value) |> Reather.Macros.wrap_reather() >>>
+            fn unquote(assign) -> unquote(continue) end
+        end
+
+      continue, value ->
+        quote do
+          import Witchcraft.Chain, only: [>>>: 2]
+          unquote(value) >>> fn _ -> unquote(continue) end
+        end
+    end)
+  end
+
+  @doc false
+  def normalize({:__block__, _, inner}), do: inner
+  def normalize(single) when is_list(single), do: [single]
+  def normalize(plain), do: List.wrap(plain)
+
+  def wrap_reather(%Reather{} = r), do: r
+  def wrap_reather(%Left{} = l), do: Reather.new(fn _env -> l end)
+  def wrap_reather(%Right{} = r), do: Reather.new(fn _env -> r end)
 end

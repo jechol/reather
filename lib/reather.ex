@@ -88,9 +88,9 @@ definst Witchcraft.Applicative, for: Reather do
       %Right{} = right ->
         Reather.new(fn _env -> right end)
 
-      non_either ->
-        raise RuntimeError,
-              "`return` argument should be %Left{} or %Right{}, not #{inspect(non_either)}."
+      value ->
+        # Here we accept value and wrap inside %Right{} for smooth migration.
+        Reather.new(fn _env -> value |> Right.new() end)
     end
   end
 end
