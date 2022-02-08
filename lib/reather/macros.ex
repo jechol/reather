@@ -211,10 +211,14 @@ defmodule Reather.Macros do
   end
 
   def do_notation(input) do
-    input
-    |> normalize()
-    |> Enum.reverse()
-    |> Witchcraft.Foldable.left_fold(fn
+    [head | tail] = input |> normalize() |> Enum.reverse()
+
+    wrapped_head =
+      quote do
+        unquote(head) |> Reather.Macros.wrap_in_reather()
+      end
+
+    Witchcraft.Foldable.left_fold(tail, wrapped_head, fn
       continue, {:let, _, [{:=, _, [assign, value]}]} ->
         quote do: unquote(value) |> (fn unquote(assign) -> unquote(continue) end).()
 
@@ -223,14 +227,17 @@ defmodule Reather.Macros do
           import Witchcraft.Chain, only: [>>>: 2]
 
           # Here we accept not only Reather, but also Either for smooth migration.
-          unquote(value) |> Reather.Macros.wrap_reather() >>>
+          unquote(value) |> Reather.Macros.wrap_in_reather() >>>
             fn unquote(assign) -> unquote(continue) end
         end
 
       continue, value ->
         quote do
           import Witchcraft.Chain, only: [>>>: 2]
-          unquote(value) >>> fn _ -> unquote(continue) end
+
+          # Here we accept not only Reather, but also Either for smooth migration.
+          unquote(value) |> Reather.Macros.wrap_in_reather() >>>
+            fn _ -> unquote(continue) end
         end
     end)
   end
@@ -240,7 +247,6 @@ defmodule Reather.Macros do
   def normalize(single) when is_list(single), do: [single]
   def normalize(plain), do: List.wrap(plain)
 
-  def wrap_reather(%Reather{} = r), do: r
-  def wrap_reather(%Left{} = l), do: Reather.new(fn _env -> l end)
-  def wrap_reather(%Right{} = r), do: Reather.new(fn _env -> r end)
+  def wrap_in_reather(%Reather{} = r), do: r
+  def wrap_in_reather(non_reather), do: Witchcraft.Applicative.of(%Reather{}, non_reather)
 end

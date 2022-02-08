@@ -89,17 +89,26 @@ defmodule ReatherTest do
 
   describe "reather/1" do
     test "for success" do
-      result =
-        reather do
-          a <- Right.new(1)
-          b <- Reather.new(fn _ -> Right.new(2) end)
-          c <- return 3
-          d <- return %Right{right: 4}
+      assert %Right{right: 10} ==
+               (reather do
+                  a <- Right.new(1)
+                  b <- Reather.new(fn _ -> Right.new(2) end)
+                  c <- return 3
+                  d <- return %Right{right: 4}
+                  let sum = a + b + c + d
 
-          return a + b + c + d
-        end
+                  # same with
+                  # 1. return sum |> Right.new()
+                  # 2. return sum
+                  sum
+                end)
+               |> Reather.run()
 
-      assert %Right{right: 10} == result |> Reather.run()
+      assert %Right{right: 1} ==
+               (reather do
+                  1
+                end)
+               |> Reather.run()
     end
 
     test "for failure" do
