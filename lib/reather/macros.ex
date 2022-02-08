@@ -188,7 +188,7 @@ defmodule Reather.Macros do
       use Witchcraft, override_kernel: false
 
       %Reather{} =
-        monad %Reather{} do
+        reather do
           unquote({:__block__, ctx, monad_body})
         end
     end
