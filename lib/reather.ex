@@ -20,17 +20,17 @@ defmodule Reather do
 
   def run(%Reather{reather: fun}, arg \\ %{}) do
     fun.(arg)
-    |> case do
-      %Left{} = left ->
-        left
+    # |> case do
+    #   %Left{} = left ->
+    #     left
 
-      %Right{} = right ->
-        right
+    #   %Right{} = right ->
+    #     right
 
-      non_either ->
-        raise RuntimeError,
-              "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
-    end
+    #   non_either ->
+    #     raise RuntimeError,
+    #           "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
+    # end
   end
 
   # defmacro run(reather, arg \\ Macro.escape(%{})) do
