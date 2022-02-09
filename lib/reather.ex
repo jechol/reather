@@ -18,37 +18,37 @@ defmodule Reather do
 
   def ask(), do: Reather.new(fn env -> Right.new(env) end)
 
-  defmacro run(reather, arg \\ Macro.escape(%{})) do
-    quote do
-      %Reather{reather: fun} = unquote(reather)
+  def run(%Reather{reather: fun}, arg \\ %{}) do
+    fun.(arg)
+    |> case do
+      %Left{} = left ->
+        left
 
-      fun.(unquote(arg)) |> Reather.Internal.confirm_either()
+      %Right{} = right ->
+        right
+
+      non_either ->
+        raise RuntimeError,
+              "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
     end
   end
 
-  # def run(%Reather{reather: fun}, arg \\ %{}) do
-  #   fun.(arg)
-  #   |> case do
-  #     %Left{} = left ->
-  #       left
+  # defmacro run(reather, arg \\ Macro.escape(%{})) do
+  #   quote do
+  #     %Reather{reather: fun} = unquote(reather)
 
-  #     %Right{} = right ->
-  #       right
-
-  #     non_either ->
-  #       raise RuntimeError,
-  #             "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
+  #     fun.(unquote(arg)) |> Reather.Internal.confirm_either()
   #   end
   # end
 
-  defmodule Internal do
-    def confirm_either(%Left{} = v), do: v
-    def confirm_either(%Right{} = v), do: v
+  # defmodule Internal do
+  #   def confirm_either(%Left{} = v), do: v
+  #   def confirm_either(%Right{} = v), do: v
 
-    def confirm_either(non_either) do
-      raise RuntimeError, "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
-    end
-  end
+  #   def confirm_either(non_either) do
+  #     raise RuntimeError, "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
+  #   end
+  # end
 
   # Macro shortcuts
 
