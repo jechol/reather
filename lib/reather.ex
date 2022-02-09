@@ -18,18 +18,35 @@ defmodule Reather do
 
   def ask(), do: Reather.new(fn env -> Right.new(env) end)
 
-  def run(%Reather{reather: fun}, arg \\ %{}) do
-    fun.(arg)
-    |> case do
-      %Left{} = left ->
-        left
+  defmacro run(reather, arg \\ Macro.escape(%{})) do
+    quote do
+      %Reather{reather: fun} = unquote(reather)
 
-      %Right{} = right ->
-        right
+      fun.(unquote(arg)) |> Reather.Internal.confirm_either()
+    end
+  end
 
-      non_either ->
-        raise RuntimeError,
-              "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
+  # def run(%Reather{reather: fun}, arg \\ %{}) do
+  #   fun.(arg)
+  #   |> case do
+  #     %Left{} = left ->
+  #       left
+
+  #     %Right{} = right ->
+  #       right
+
+  #     non_either ->
+  #       raise RuntimeError,
+  #             "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
+  #   end
+  # end
+
+  defmodule Internal do
+    def confirm_either(%Left{} = v), do: v
+    def confirm_either(%Right{} = v), do: v
+
+    def confirm_either(non_either) do
+      raise RuntimeError, "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
     end
   end
 
@@ -100,7 +117,9 @@ definst Witchcraft.Chain, for: Reather do
   @force_type_instance true
   alias Reather
 
-  def chain(%Reather{} = reather, link) do
+  def chain(%Reather{reather: fun} = reather, link) do
+    require Reather
+
     Reather.new(fn env ->
       reather
       |> Reather.run(env)
