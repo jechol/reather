@@ -18,6 +18,12 @@ defmodule Reather do
 
   def ask(), do: Reather.new(fn env -> Right.new(env) end)
 
+  def inspect(%Reather{} = r, opts \\ []) do
+    Reather.new(fn env ->
+      r |> Reather.run(env) |> IO.inspect(opts)
+    end)
+  end
+
   def run(%Reather{reather: fun}, arg \\ %{}) do
     fun.(arg)
     # |> case do
