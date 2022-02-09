@@ -14,6 +14,7 @@ defmodule Reather do
   defstruct reather: &Quark.id/1
 
   def new(fun), do: %Reather{reather: fun}
+  def of(value), do: Witchcraft.Applicative.of(%Reather{}, value)
 
   def ask(), do: Reather.new(fn env -> Right.new(env) end)
 
