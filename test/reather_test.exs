@@ -130,5 +130,10 @@ defmodule ReatherTest do
                 end)
                |> Reather.run()
     end
+
+    test "for do: " do
+      assert %Right{right: 10} == reather(do: 10) |> Reather.run()
+      assert %Right{right: nil} == reather(do: nil) |> Reather.run()
+    end
   end
 end

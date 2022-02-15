@@ -245,7 +245,7 @@ defmodule Reather.Macros do
   @doc false
   def normalize({:__block__, _, inner}), do: inner
   def normalize(single) when is_list(single), do: [single]
-  def normalize(plain), do: List.wrap(plain)
+  def normalize(plain), do: [plain]
 
   def wrap_in_reather(%Reather{} = r), do: r
   def wrap_in_reather(non_reather), do: Witchcraft.Applicative.of(%Reather{}, non_reather)
