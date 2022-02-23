@@ -47,22 +47,34 @@ defmodule ReatherTest do
     assert %Right{right: 21} == new |> Reather.run(%{a: 10})
   end
 
+  reather sum(aa, bb, cc) do
+    a <- aa
+    b <- bb
+    c <- cc
+    d <- Reather.ask()
+
+    a + b + c + d
+  end
+
+  test "function as reather" do
+    assert %Right{right: 10} ==
+             sum(1, Right.new(2), Reather.new(fn _ -> Right.new(3) end)) |> Reather.run(4)
+  end
+
   describe "reather/1" do
     test "for success" do
-      assert %Right{right: 10} ==
+      assert %Right{right: 15} ==
                (reather do
                   a <- Right.new(1)
                   b <- Reather.new(fn _ -> Right.new(2) end)
                   c <- return 3
                   d <- return %Right{right: 4}
-                  let sum = a + b + c + d
+                  e <- Reather.ask()
+                  let sum = a + b + c + d + e
 
-                  # same with
-                  # 1. return sum |> Right.new()
-                  # 2. return sum
                   sum
                 end)
-               |> Reather.run()
+               |> Reather.run(5)
 
       assert %Right{right: 1} ==
                (reather do

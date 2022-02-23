@@ -23,50 +23,37 @@ locals_without_parens: [reather: 2]
 
 ## Usage
 
-#### `reather`, `left/right`, `ask`, `inject`, `mock`
+#### `reather`, `ask`, `let`, `run`
 
 ```elixir
-defmodule Target do
-  use Reather
+assert %Right{right: 15} ==
+          (reather do
+            a <- Right.new(1)
+            b <- Reather.new(fn _ -> Right.new(2) end)
+            c <- return 3
+            d <- return %Right{right: 4}
+            e <- Reather.ask()
+            let sum = a + b + c + d + e
 
-  defmodule Impure do
-    reather read("invalid") do
-      return Left.new(:enoent)
-    end
-
-    reather read("valid") do
-      return Right.new(99)
-    end
-  end
-
-  reather read_and_multiply(filename) do
-    input <- Impure.read(filename) |> Reather.inject()
-
-    multiply(input)
-  end
-
-  reatherp multiply(input) do
-    %{number: number} <- Reather.ask()
-
-    return Right.new(input * number)
-  end
-end
+            sum
+          end)
+          |> Reather.run(5)
 ```
 
 ```elixir
-use Reather
+reather sum(aa, bb, cc) do
+  a <- aa
+  b <- bb
+  c <- cc
+  d <- Reather.ask()
 
-mock = Reather.mock(%{&Target.Impure.read/1 => Right.new(77)})
-# Same with
-# mock = Reather.mock(%{&Target.Impure.read/1 => Reather.new(fn _env -> Right.new(77) end)})
+  a + b + c + d
+end
 
-assert %Left{left: :enoent} =
-          Target.read_and_multiply("invalid") |> Reather.run(%{number: 10})
-
-assert %Right{right: 770} =
-          Target.read_and_multiply("invalid") |> Reather.run(%{number: 10} |> Map.merge(mock))
-
-assert %Right{right: 990} = Target.read_and_multiply("valid") |> Reather.run(%{number: 10})
+test "function as reather" do
+  assert %Right{right: 10} ==
+            sum(1, Right.new(2), Reather.new(fn _ -> Right.new(3) end)) |> Reather.run(4)
+end
 ```
 
 ## License
