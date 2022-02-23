@@ -2,46 +2,6 @@ defmodule ReatherTest do
   use ExUnit.Case
   use Reather
 
-  defmodule Target do
-    use Reather
-
-    defmodule Impure do
-      reather read("invalid") do
-        return Left.new(:enoent)
-      end
-
-      reather read("valid") do
-        return Right.new(99)
-      end
-    end
-
-    reather read_and_multiply(filename) do
-      input <- Impure.read(filename) |> Reather.inject()
-
-      multiply(input)
-    end
-
-    reatherp multiply(input) do
-      %{number: number} <- Reather.ask()
-
-      return Right.new(input * number)
-    end
-  end
-
-  test "Reather.run with mock" do
-    mock = Reather.mock(%{&Target.Impure.read/1 => Right.new(77)})
-    # Same with
-    # mock = Reather.mock(%{&Target.Impure.read/1 => Reather.new(fn _env -> Right.new(77) end)})
-
-    assert %Left{left: :enoent} =
-             Target.read_and_multiply("invalid") |> Reather.run(%{number: 10})
-
-    assert %Right{right: 770} =
-             Target.read_and_multiply("invalid") |> Reather.run(%{number: 10} |> Map.merge(mock))
-
-    assert %Right{right: 990} = Target.read_and_multiply("valid") |> Reather.run(%{number: 10})
-  end
-
   test "Functor" do
     assert_raise RuntimeError, fn ->
       Reather.new(fn _ -> 10 end) |> Functor.map(fn x -> x * 2 end) |> Reather.run()
