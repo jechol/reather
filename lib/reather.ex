@@ -26,35 +26,7 @@ defmodule Reather do
 
   def run(%Reather{reather: fun}, arg \\ %{}) do
     fun.(arg)
-    # |> case do
-    #   %Left{} = left ->
-    #     left
-
-    #   %Right{} = right ->
-    #     right
-
-    #   non_either ->
-    #     raise RuntimeError,
-    #           "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
-    # end
   end
-
-  # defmacro run(reather, arg \\ Macro.escape(%{})) do
-  #   quote do
-  #     %Reather{reather: fun} = unquote(reather)
-
-  #     fun.(unquote(arg)) |> Reather.Internal.confirm_either()
-  #   end
-  # end
-
-  # defmodule Internal do
-  #   def confirm_either(%Left{} = v), do: v
-  #   def confirm_either(%Right{} = v), do: v
-
-  #   def confirm_either(non_either) do
-  #     raise RuntimeError, "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
-  #   end
-  # end
 end
 
 alias Algae.Either.{Left, Right}
