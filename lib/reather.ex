@@ -55,26 +55,6 @@ defmodule Reather do
   #     raise RuntimeError, "Reather should return %Left{} or %Right{}, not #{inspect(non_either)}."
   #   end
   # end
-
-  # Macro shortcuts
-
-  defmacro inject(call) do
-    quote do
-      Reather.Macros.inject(unquote(call))
-    end
-  end
-
-  defmacro mock(mocks) do
-    quote do
-      Reather.Macros.mock(unquote(mocks))
-    end
-  end
-
-  defmacro reatherfy(fun) do
-    quote do
-      Reather.Macros.reatherfy(unquote(fun))
-    end
-  end
 end
 
 alias Algae.Either.{Left, Right}
