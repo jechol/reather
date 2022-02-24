@@ -12,7 +12,7 @@ defmodule Reather.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       package: package(),
-      description: "Reader + Either",
+      description: "Either transformed Reader (reather = REAder + eiTHER)",
       source_url: "https://github.com/jechol/reather",
       docs: docs()
     ]
@@ -33,10 +33,7 @@ defmodule Reather.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.27.0", only: :dev, runtime: false},
-      {:algae, git: "https://github.com/jechol/algae.git", override: true},
-      {:quark, git: "https://github.com/jechol/quark.git", override: true},
-      {:type_class, git: "https://github.com/jechol/type_class.git", override: true},
-      {:witchcraft, git: "https://github.com/jechol/witchcraft.git", override: true}
+      {:algae, "~> 1.3"}
     ]
   end
 
