@@ -16,7 +16,8 @@ defmodule Reather.MixProject do
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        "coveralls.github": :test
       ],
       package: package(),
       description: "Either transformed Reader (reather = REAder + eiTHER)",
