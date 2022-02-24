@@ -42,7 +42,7 @@ defmodule Reather.MixProject do
     [
       {:ex_doc, "~> 0.27.0", only: :dev, runtime: false},
       {:algae, "~> 1.3"},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:excoveralls, "~> 0.14", only: :test}
     ]
   end
 
