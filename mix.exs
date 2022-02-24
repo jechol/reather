@@ -52,7 +52,8 @@ defmodule Reather.MixProject do
       canonical: "http://hexdocs.pm/reather",
       source_url: "https://github.com/jechol/reather",
       extras: [
-        "README.md"
+        "README.md",
+        "LICENSE.md"
       ]
     ]
   end
