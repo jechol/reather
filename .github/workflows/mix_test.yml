@@ -18,6 +18,9 @@ jobs:
   mix_test:
     runs-on: ubuntu-latest
     name: mix test
+    env:
+      MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: cachix/install-nix-action@v16
