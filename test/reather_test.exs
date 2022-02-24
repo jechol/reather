@@ -108,4 +108,23 @@ defmodule ReatherTest do
       assert %Right{right: nil} == reather(do: nil) |> Reather.run()
     end
   end
+
+  use Reather
+
+  reather next(number) do
+    n <- number
+    %{step: step} <- Reather.ask()
+
+    let sum = n + step
+    sum
+  end
+
+  test "next/1" do
+    assert Right.new(15) == next(10) |> Reather.run(%{step: 5})
+    assert Right.new(15) == next(Right.new(10)) |> Reather.run(%{step: 5})
+    assert Right.new(15) == next(Reather.of(10)) |> Reather.run(%{step: 5})
+
+    assert Left.new(:NaN) == next(Left.new(:NaN)) |> Reather.run(%{step: 5})
+    assert Left.new(:NaN) == next(Reather.of(Left.new(:NaN))) |> Reather.run(%{step: 5})
+  end
 end
