@@ -3,7 +3,7 @@
 [![License badge](https://img.shields.io/hexpm/l/reather.svg)](https://github.com/jechol/reather/blob/main/LICENSE.md)
 [![Coverage Status](https://coveralls.io/repos/github/jechol/reather/badge.svg?branch=main)](https://coveralls.io/github/jechol/reather?branch=main)
 
-`reather` is `def` for Witchcraft's Reader + Either monads.
+`reather` [ˈriːθə(r)] is `def` for Witchcraft's Reader + Either monads.
 
 ## Installation
 
