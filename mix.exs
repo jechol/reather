@@ -40,7 +40,7 @@ defmodule Reather.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.27.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.31.0", only: :dev, runtime: false},
       {:algae, "~> 1.3"},
       {:excoveralls, "~> 0.14", only: :test}
     ]
